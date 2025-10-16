@@ -1,0 +1,91 @@
+ROBOTIKA
+
+- robot: elektro-mehanička naprava s više stupnjeva slobode (SS), programirana za izvršenje različitih radnih tadaća
+- industrijski robot: programiran, višefunkcijski manipulator namijenjen za prijenos materijala, dijelova, alata ili posebnih naprava preko različitih programiranih pokreta za izvođenje različitih zadaća
+
+3 generacije robota:
+
+1) mehanički rad + jednostavne programirane sekvence
+Nemaju senzore ni autonomiju (strogo definirani uvjeti)
+Koriste se u industriji za manipulaciju materijalom i repetitivne zadatke
+
+2) ugrađeni senzori koji omogućuju reakciju na okolinu (vid, dodir, sila)
+Složeniji industrijski procesi i montaža
+Fleksibilnost i sigurnost pri radu s ljudima
+
+3) autonomni i inteligentni => koriste ML i CV
+Real-time decision making
+Medicina, uslužne djelatnosti, svemirske misije...
+Primjer: self-driving auti koji moraju moći reagirati na nepredvidive stvari
+
+Pojmovi:
+
+SS - stupnjevi slobode => broj neovisnih pokreta koje neki uređaj može izvesti (mobilnost)
+Npr. po kojim osima po kojima se robot može kretati
+U pravilu: broj stupnjeva slobode = broj zglobova koje robot ima (ali ne nužno)
+
+Manupulator: elektromehanička naprava sposobna da međudjeluje sa svojom okolinom
+
+Antropomorfologija => poput ljudskog bića
+
+Krajnji djelovatelj => alat, hvataljka ili naprava ugrađena na kraju manipulatora, za izvođenje korisnih zadataka (END EFFECTOR)
+Aktuator => motori u zglobovima koji pomiču robota
+Senzor => da ne znan ča je senzor, moga bin se poj hitit u prvu jamu koju najden
+
+Radni prostor: obujam prostora koji end effector može doseći i svojim namještenim položajem i usmjerenjem
+
+Položaj: translatorni položaj (pravocrtni) => x,y,z koordinate
+Usmjerenje: Položaj okretanja (kutni) nekog tijela => vrtnja, korak nagiba, kut skretanja (pitch, roll, jaw)
+Spona (članak): kruti spoj od nekog materijala koji povezuje zglobove na robotu
+Zglob: mehanizam koji omogućuje relativno kretanje između 2 spone na robotu
+
+U pravilu, spona je kruta, a zglob mobilan
+
+Kinematika: nauka o pokretu bez obzira na sile i mase => omogućava do odredimo poziciju robota na temelju kutnih pomaka svakog zgloba i obrnuto (uzmemo krajnji položaj i izračunamo koji su bili kutni pokreti)
+Dinamika: nauka o pokretu koja uzima u obzir sile i mase
+
+Aktuator: pokretač; omogućuje snagu koja je potrebna za kretanje robota
+Senzor: mjerni pretvornik; očitava varijable prilikom kretanja robota za upotrebu nadzora
+
+Brzina i nosivost
+Veličina udaljenosti u vremneu pri kojoj se robot kreće, m/s
+
+Brzina je određena za određeno opterećenje, pod pretpostavkom nošenja jednake brzine
+Trenutačna brzina ovisi o prenesenoj režini
+
+Nosivost => koju max težinu može nositi
+
+Točnost - sposobnost robota da se kreće do određenog mjesta bez greške
+Nije moguće 100% :(
+Preciznost - sposobnost robota da se namjesti u položaj prema određenom mjestu s najmanjom greškom
+
+🎯 Točnost (Accuracy)
+
+👉 “Koliko blizu robot zapravo dođe točnoj željenoj točki.”
+Drugim riječima, točnost je sposobnost robota da pogodi cilj.
+Ako mu kažeš da ide na (x=10, y=20, z=5), točnost opisuje koliko se on stvarno približi toj poziciji.
+
+Tvoja definicija: “sposobnost robota da se kreće do određenog mjesta bez greške”
+✅ Točno! Samo možeš dodati: “...u odnosu na zadanu referentnu poziciju.”
+
+🔁 Ponovljivost (Repeatability)
+
+👉 “Koliko precizno robot može ponovno doći na isto mjesto kad više puta ponovi isti pokret.”
+Znači, možda nije savršeno točan (svaki put malo promaši cilj), ali ako svaki put promaši na isti način, ima dobru ponovljivost.
+
+Tvoja definicija: “sposobnost robota da se namjesti uzastopno u određeni položaj kad je zatraženo da izvrši zadatak više puta”
+✅ Savršeno! To je doslovno textbook definicija.
+
+⚙️ Primjer za pamćenje:
+
+Zamisli da robot svaki put pokuša dotaknuti točku na stolu:
+
+Ako svaki put promaši malo desno, ali uvijek isto — ima visoku ponovljivost, ali slabu točnost.
+
+Ako svaki put pogodi točno mjesto, ima visoku točnost i vjerojatno i visoku ponovljivost.
+
+Ako svaki put pogodi drugo mjesto — ima slabu ponovljivost, bez obzira na točnost.
+
+💡 Zlatna rečenica za zapamtit:
+
+“Robot može biti ponovljiv, ali ne nužno točan — no ako je točan, mora biti i ponovljiv.”
