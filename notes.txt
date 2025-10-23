@@ -591,3 +591,54 @@ Može izgubiti impulse pri vrlo visokim brzinama ako sustav nije sinkroniziran.
 Primjena u robotici
 
 Koristi se u servo sustavima, kotačima mobilnih robota, transportnim trakama, CNC pogonima – svuda gdje ti je bitno znati koliko se nešto pomaknulo i kojom brzinom.
+
+
+Polarne koordinate (2D slučaj)
+
+U ravnini (2D) točku opisuješ s dvije vrijednosti:
+
+r – udaljenost od ishodišta
+
+θ (teta) – kut u odnosu na x-os
+
+Dakle, umjesto da kažeš "točka je na (x=3, y=3)", možeš reći:
+"točka je 4.24 jedinice od ishodišta, pod kutem 45°".
+
+Tu dakle kut (θ) određuje orijentaciju, a r određuje poziciju po udaljenosti.
+
+Sferne (ili cilindrične) koordinate (3D slučaj)
+
+U robotici se često koristi sferni ili cilindrični koordinatni sustav — proširenje polarnog sustava u 3D.
+
+Cilindrične koordinate (r, θ, z):
+
+r – udaljenost od osi (kao radijus)
+
+θ – kut oko osi (rotacija)
+
+z – visina (kao u kartezijskom sustavu)
+
+→ Koristi se npr. kod polarnih robota – imaju jedan rotacijski i dva translacijska zgloba.
+
+Sferne koordinate (r, θ, φ):
+
+r – udaljenost od ishodišta
+
+θ – azimut (rotacija oko vertikalne osi)
+
+φ – elevacijski kut (nagib prema gore ili dolje)
+
+→ Ovim sustavom definiraš položaj točke u prostoru pomoću rotacija i udaljenosti — zato i može izgledati kao da “određuje rotaciju po osima”.
+
+U kontekstu robotike:
+
+Polarne, cilindrične i sferne koordinate se koriste za:
+
+kinematiku robota (računanje položaja alata u prostoru)
+
+upravljanje zglobovima koji se prirodno gibaju rotacijski
+
+pretvorbu između koordinatnih sustava (npr. iz kartezijskog u robotski)
+
+Dakle, nije da polarne koordinate direktno “rotiraju po osi”, nego one koriste kutove (rotacije) kao jedan od načina da opišu položaj točke u prostoru.
+Rotacije po osi su više stvar zglobova robota i Eulerovih kutova ili rotacijskih matrica — što je korak iznad samih koordinata.
