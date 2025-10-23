@@ -89,3 +89,505 @@ Ako svaki put pogodi drugo mjesto — ima slabu ponovljivost, bez obzira na toč
 💡 Zlatna rečenica za zapamtit:
 
 “Robot može biti ponovljiv, ali ne nužno točan — no ako je točan, mora biti i ponovljiv.”
+
+
+Osnovne komponente robotskih manipulatora
+
+- robotska ruka/manipulator
+- vrh manipulatora (end-effector)
+- pogonski sustav
+- senzori
+- sustav upravljanja i regulacije
+
+Robotski manipulator:
+- skup članaka (spona) međusobno povezanih zglobovima
+Robotski manipulator sastoji se od:
+
+Tijela, Ruke, Ručnog zgloba
+
+U proizvodnim procesima, najčešće pričvršćeni za podlogu(bazu)
+
+Na kraju ruke => zglob s više komponenti
+
+Vrste zglobova:
+Translacijski
+Rotacijski
+Revolucijski
+Torzijski
+Sferni
+
+Naravno šefe, idemo redom – ovo su ključne vrste zglobova (engl. *joints*) koji definiraju **stupnjeve slobode** (*degrees of freedom, DOF*) robota i način na koji se pojedini segmenti mogu kretati jedan u odnosu na drugi.
+
+---
+
+### 1. **Translacijski zglob (prizmatični zglob)** - oznaka L
+
+**Opis:**
+Omogućuje **pravocrtno (linearno) gibanje** duž jedne osi – naprijed-nazad, gore-dolje ili lijevo-desno.
+**Primjer:**
+Klasični *linear actuator* ili klizač koji se pomiče po vodilici.
+**Uloga u robotici:**
+Koristi se u sustavima gdje je potrebno precizno pozicioniranje bez rotacije (npr. robotski stolovi, CNC strojevi, 3D printeri – os X/Y/Z).
+
+---
+
+### 2. **Rotacijski zglob** - oznaka R
+
+**Opis:**
+Omogućuje **rotaciju oko jedne osi**.
+**Primjer:**
+Motor koji zakreće ruku robota oko osi, poput zakretanja vrata.
+**Uloga u robotici:**
+Osnovni tip rotacijskog spoja – koristi se za orijentaciju segmenata robota, npr. za zakretanje baze robota ili lakta.
+
+---
+
+### 3. **Revolucijski zglob** - oznaka V
+
+**Opis:**
+Vrlo sličan rotacijskom, ali naglasak je na tome da **omogućuje rotaciju oko fiksne osi s jednim stupnjem slobode** (1 DOF).
+**Primjer:**
+Zglob u robotskoj ruci koji omogućuje savijanje kao ljudski lakat.
+**Uloga u robotici:**
+Najčešće korišten tip zgloba u **manipulatorima** – svaka “os” robota (ramo, lakat, zglob) zapravo je revolucijski zglob.
+
+---
+
+### 4. **Torzijski zglob** - oznaka T
+
+**Opis:**
+Omogućuje **uvijanje (torziju)** oko osi – rotacija s elastičnim otporom.
+**Primjer:**
+Zglob koji može malo “popustiti” pod opterećenjem, slično torzijskom opružnom spoju.
+**Uloga u robotici:**
+Koristi se u sustavima gdje je potrebna **fleksibilnost i apsorpcija udara**, npr. *compliant robots* ili kolaborativni roboti (coboti) koji rade uz ljude.
+
+---
+
+### 5. **Sferni zglob (ball joint)**
+
+**Opis:**
+Omogućuje **rotaciju oko tri osi (3 DOF)** – može se okretati, savijati i naginjati u svim smjerovima, baš kao ljudsko rame.
+**Primjer:**
+Kuglasti zglob u robotskoj ruci ili u automobilskom ovjesu.
+**Uloga u robotici:**
+Omogućuje **potpunu orijentaciju alata ili senzora**, pa se često koristi na kraju manipulatora (tzv. *end effector*) kako bi se alat mogao slobodno orijentirati prema objektu.
+Nisu baš česti jer je njima teško upravljati
+Treba nam više motora
+---
+
+Osnovne strukture (konfiguracije/sklopovi)
+
+Pravokutna (kartezijska, LLL)
+3 translacijska zgloba čije su osi međusobno okomite
+Svaki stupan pokretljivosti odgovara stupnju slobode u k.k.s.
+
+Robot vrši pravocrtno kretanje, a struktura je dobro mehanički čvrsta
+Nedostatak: robot ima slabu pokretljivost, jer su svi zglobovi translacijski, a radni prostor ovog robota je prizma
+Ova konfiguracija pristupa objektu "sa strane"
+
+Cilindrična (TLL)
+Prvi zglob pravokutne strukture zamijeni se cilindričnim
+Radni prostor je columen između 2 koncentrična plašta valjka
+Prednost: dobra mehanička čvrstoća
+Nedostatak: točnost pozicioniranja ručnog zgloba smanjuje se s povećanjem horizontalnog hoda
+Upotreba: prijenos objekata većih dimenzija
+U pravilu im se ne daje punih 360 stupnjeva za rotaciju za stavit kablove i sl.
+
+
+Sferna konfiguracija (TRL)
+Zamjena prvog i drugog zgloba pravokutne ili drugog zgloba cilindrične konfiguracije s rotacijskim zglobom
+Radni prostor je dio volumena između 2 koncentrične sfere
+Često se koristi za oružje
+Mehanička čvrstoća sferne robotske strukture je manja u odnosu na cilindričnu i pravokutnu
+
+Rotacijska konfiguracija (TRR)
+Sva 3 zgloba su rotacijska 
+Osi rotacije drugog i trećeg zgloba su paralelne i okomite na os rotacije prvog zgloba
+Ako nema fizičkih ograničenja kretanja, onda je radni prostor tog robota kugla
+Za pogon zglobova koriste se elektromotori
+
+SCARA Robot
+Selective Compliance Assembly Robot Arm
+Osi sva 3 zgloba su vertikalne
+2 rotacijska i 1 translacijski zglob
+Konfiguracije: TLR, LRR, TRL
+Čvrst na vertikalnoj osi 
+Dobar za rad na pokretnim trakama (posebno assembly malih djelova)
+
+Vrh manipulatora/krajnji djelovatelj/end effector
+Na kraju robotskog manipulatora
+2 osnovna tipa: hvataljka, alat
+
+Hvataljke
+Sklopovi za držanje i/ili hvatanje objekata
+Mehaničke ruke, kuke, magneti, usisnici
+Princip od točke do točke (uzmi nešto na početnoj točki, donesi do krajnje točke; putanja nam nije pretjerano bitna)
+
+- 2/3 prsta, ali more i više
+Princip trenja između ruke i objekta
+Na hvataljku se dodaje poliuretan => veće trenje, spriječavanje oštećenja objekta kji se prenosi
+
+Usisne hvataljke
+1)Princip vakuuma (pumpe + kompresori)
+2)Fleksibilne usisne prijanjaljke 
+
+Prednost: ako nestane struje, stvar koja se drži ne pada
+
+Magnetske hvataljke
+Rade samo s feromagnetskim materijalima
+Poželjno je da magnet bude u potpunom kontaktu s površinom metala (poželjno da je metal ravan da se magnet bolje ulovi)
+Elektromagneti i permanentni magneti
+
+
+Alati
+Uređaj koji se koristi kod robota za obavljanje operacije na objektu
+Robotski manupulatori s alatom moraju imati kontinuiranu kontrolu putanje (stabilna i kontinuirano kontrolirana)
+Npr. farbanje s sprejon...ako je prebrzo, ne valja, ako je presporo isto je u klincu
+
+Tipovi alata:
+Najšešće zavarivanje
+
+Pogoni:
+Pneumatski => stlačeni zrak
+Hidraulički => ulje pod tlakom
+Električni => struja
+
+Pneumatski 
+prednosti => super za male robote, brz, jeftinije, ekološki, nije eksplozivan ni zapaljiv, nema povratnih vodova, otporan na preopterećenje, neosjetljiv na zračenja i elektromagnete
+nedostaci => male sile, stlačeni zrak je skuplji od alternativa, problem upravljanja pri malim brzinama, bučno, zbog otpora strujanja nije baš dobar za velike udaljenosti
+
+Hidraulički
+prednosti => super za velike robote, moguće ekstremno niske brzine, velike sile i snage, preciznost zbog nestalčivosti ulja, relativno jednostavan transport, lako podešavanje sile i brzine, podmazivanje i odvođenje topline
+nedostaci => onečišćenje u slučaju istjecanje ulja, zauzima veliki prostor, visoka cijena opreme, potreban povratni vod
+
+Elektromotorni
+prednosti => pogodan za male i srednje robote, ekologija, najčešće upotrebljavan, odlična upravljačka svojstva, niske cijene elektromotora, reverzibilno kočenje, mogućnost upravljanja na većim udaljenostima
+nedostaci => potrebna kočnica, potreban reduktor, potreba za senzorima
+
+To je mehanički prijenosnik koji smanjuje brzinu vrtnje elektromotora, a povećava okretni moment (snagu).
+Reduktor omogućava da radi sporije, ali jače
+
+Električni pogon robota:
+
+Istosmjerni elektromotor
+Koristi DC
+Brzina vrtnje proporcionalna naponu napajanja
+Neodstatak => brzina ovisi o naponu, ali nešto je niža od rotacijskog polja...postoji klizanje. Unutarnji rotor je brži od vanjskog, pa treba više energije i nije potpuno egzaktno (ne možemo biti 100% sigurni koliko će se zarotirati)
+
+Asinkroni strojevi...momentum mu raste sporije (ko kad nabijaš gas na autu, pa se dižu okretaji)
+Sinkroni strojevi => složena regulacija i upravljanje; jako velike snage
+
+Senzori - mjerni pretvornici
+Najčešće su to senzori položaja
+Ali ima još i: brzina, ubrzanje, udaljenost, sila, moment
+
+Bitne krakteristike:
+Točnost
+Preciznost
+Granica detekcija - najniža vrijednost koju može izmjeriti
+Rezolucija - najmanja inkrementalna promjena ulaznog signala koja je mjerljiva
+Lineranost
+Vrijeme odziva
+
+Histereza
+Životni vijek
+Dinamički raspon
+Ponovljivost
+Obnovljivost
+
+---
+
+### **1. Točnost (accuracy)**
+
+Koliko **blizu stvarnoj vrijednosti** senzor mjeri.
+Primjer: ako je stvarna temperatura 25.0°C, a senzor pokazuje 25.1°C – to je vrlo točan senzor.
+**Što manja pogreška → veća točnost.**
+
+---
+
+### **2. Preciznost (precision)**
+
+Koliko su **rezultati međusobno slični** kad više puta mjeriš istu stvar.
+Primjer: ako senzor svaki put pokaže 25.4°C, on je **precizan**, ali možda nije **točan** (ako je stvarna 25.0°C).
+Dakle – **točnost = blizina stvarne vrijednosti**,
+**preciznost = ponovljivost mjerenja.**
+
+---
+
+### **3. Granica detekcije (detection limit)**
+
+Najmanja vrijednost koju senzor **može registrirati**.
+Primjer: ultrazvučni senzor koji detektira udaljenosti od 2 cm do 4 m → 2 cm mu je **donja granica detekcije**.
+Ispod toga jednostavno “ne vidi”.
+
+---
+
+### **4. Rezolucija (resolution)**
+
+Najmanja promjena koju senzor može **razlikovati**.
+Primjer: enkoder koji mjeri položaj u koracima od 0.1° ima rezoluciju 0.1°.
+Znači, ako se pomakneš 0.05°, senzor to **neće primijetiti**.
+
+---
+
+### **5. Linear­nost (linearity)**
+
+Koliko je **izlazni signal proporcionalan ulaznom**.
+Idealno: kad se ulaz poveća 2×, i izlaz bi se trebao povećati 2×.
+Ako to nije slučaj, senzor je **nelinearan** i stvara pogreške u određenim područjima mjerenja.
+
+---
+
+### **6. Vrijeme odziva (response time)**
+
+Koliko brzo senzor **reagira na promjenu**.
+Primjer: termometar kojem treba 2 sekunde da prikaže novu temperaturu ima vrijeme odziva 2 s.
+U robotici, manji odziv = bolja dinamika sustava.
+
+---
+
+### **7. Histereza (hysteresis)**
+
+Razlika u izlazu senzora ovisno o tome **mijenja li se veličina prema gore ili dolje**.
+Primjer: senzor pokazuje 10.0 V kad se sila povećava do 100 N, ali 9.8 V kad se sila smanjuje natrag na 100 N.
+To je histereza – rezultat “zaostaje” ovisno o smjeru promjene.
+
+---
+
+
+### **8. Životni vijek (lifetime)**
+
+Koliko dugo senzor **može pouzdano raditi** prije nego što počne gubiti performanse.
+Npr. optički senzor: 10 milijuna ciklusa ili 5 godina rada.
+
+---
+
+### **9. Dinamički raspon (dynamic range)**
+
+Omjer između **najveće i najmanje** vrijednosti koju senzor može točno izmjeriti.
+Primjer: mikrofon koji mjeri od 20 dB do 120 dB ima dinamički raspon od 100 dB.
+Veći raspon = može mjeriti i male i velike vrijednosti bez zasićenja.
+
+---
+
+### **10. Ponovljivost (repeatability)**
+
+Koliko senzor daje **isti rezultat** kad u istim uvjetima mjeri više puta.
+Primjer: ako svaki put izmjeri 1.001 V ±0.001 V → visoka ponovljivost.
+
+---
+
+### **11. Obnovljivost (reproducibility)**
+
+Koliko slične rezultate daje **u različitim uvjetima** – npr. na različitim temperaturama, u različitim mjernim ciklusima, ili s drugim senzorom istog tipa.
+Ako dva identična senzora daju gotovo isti rezultat → dobra obnovljivost.
+
+---
+
+Senzori pomaka => mjerenje linearnog ili rotacijskog pomaka (zakreta)
+Mogu biti:
+potenciometarski
+induktivni
+kapacitivni
+magnetski
+ultrazvučni
+radari
+optički
+digitalni enkoderi (najšešći u robotici)
+
+
+Naravno šefe! Evo ti **sažet, ali jasan pregled** svakog tipa senzora pomaka — taman za učenje, ponavljanje ili skriptu.
+
+---
+
+### **1. Potenciometarski senzori**
+
+* Mjere pomak pomoću **promjene otpora** (klizač po otporniku).
+* Jednostavni i jeftini.
+* Daju **analogni signal** (npr. 0–5 V).
+* Slabiji životni vijek (mehaničko trošenje).
+* Koriste se za **poziciju osovine ili klizača**.
+
+---
+
+### **2. Induktivni senzori**
+
+* Rade na principu **promjene induktivnosti** (zbog metalnog objekta).
+* Dobri za **ne-kontaktno mjerenje** položaja metalnih dijelova.
+* Otporni na prašinu, vlagu i prljavštinu.
+* Koriste se u **industrijskim manipulatorima i robotima**.
+
+---
+
+### **3. Kapacitivni senzori**
+
+* Mjere promjenu **kapaciteta između dviju elektroda**.
+* Mogu detektirati **vodljive i nevodljive materijale**.
+* Vrlo **osjetljivi**, ali podložni smetnjama (vlaga, prašina).
+* Koriste se u **preciznim mjerenjima malih pomaka**.
+
+---
+
+### **4. Magnetski senzori**
+
+* Rade na principu **magnetnog polja** (Hall efekt, magnetorezistivni efekt).
+* Ne-kontaktno mjerenje rotacije ili translacije.
+* Dugotrajniji od potenciometara.
+* Koriste se za **mjerenje zakreta osovine motora** ili **poziciju kotača**.
+
+---
+
+### **5. Ultrazvučni senzori**
+
+* Emitiraju **zvučni val** i mjere vrijeme povratka eha.
+* Iz toga računaju **udaljenost/pomak**.
+* Dobri za **veće udaljenosti (cm do metara)**.
+* Nisu precizni na vrlo malim udaljenostima.
+* Koriste se u **mobilnoj robotici** (izbjegavanje prepreka).
+
+---
+
+### **6. Radarski senzori**
+
+* Koriste **mikrovalne valove** umjesto zvuka.
+* Veći domet i **manje osjetljivi na uvjete okoline** (prašina, svjetlo).
+* Precizni, ali **skuplji** i složeniji.
+* Koriste se u **autonomnim vozilima i industrijskoj automatizaciji**.
+
+---
+
+### **7. Optički senzori**
+
+* Koriste **svjetlost (lasersku ili infracrvenu)** za detekciju pomaka.
+* Vrlo **precizni** i **brzi odziv**.
+* Mogu biti reflektivni ili probojni (beam).
+* Koriste se za **mjerenje linearnog pomaka, brzine, položaja**.
+
+---
+
+### **8. Digitalni enkoderi**
+
+* Najčešće korišteni u robotici.
+* Pretvaraju **rotaciju u digitalni signal** (impulse).
+* Dva tipa: **inkrementalni** (mjere promjenu) i **apsolutni** (znaju točan položaj).
+* Vrlo **precizni i pouzdani**, idealni za **servo sustave i robotske zglobove**.
+
+---
+
+
+Apsolutni enkoder
+
+Što radi apsolutni enkoder?
+
+Apsolutni enkoder mjeri točan kutni položaj osovine i pritom svakom položaju pridružuje jedinstvenu digitalnu vrijednost (kod).
+Drugim riječima:
+→ zna apsolutni položaj, ne samo promjenu položaja kao inkrementalni enkoder.
+
+Čim ga upališ – odmah zna u kojem je položaju, bez potrebe za “nultiranjem”.
+
+Princip rada (osnovna ideja)
+
+U enkoderu se nalazi disk koji se okreće zajedno s osovinom.
+Na tom disku su koncentrični prstenovi s prozračnim (prozirnim) i neprozračnim (neprozirnim) segmentima — zapravo binarni uzorci.
+
+S druge strane diska nalazi se niz optičkih senzora (fototranzistora) koji “čitaju” prolaz svjetlosti kroz te uzorke.
+Kombinacija svjetlo/tama = 1 ili 0 → binarni kod položaja.
+
+Primjerice, ako imaš 3 prstena:
+
+unutarnji prsten = bit 1
+
+srednji prsten = bit 2
+
+vanjski prsten = bit 3
+
+Za svaki kut osovine dobiješ npr. 101, 110, 011... — svaka ta kombinacija znači točno definiran kut.
+
+Vrste kodiranja
+
+Postoje različiti načini kako su ti prstenovi “kodirani”:
+
+Binarni kod – klasični 0 i 1 niz.
+
+Gray kod – koristi se češće jer se mijenja samo 1 bit po koraku → manja šansa za pogrešku kod prelaska između vrijednosti.
+
+Koliko pozicija može mjeriti?
+
+Ako imaš n prstena → možeš razlikovati 2ⁿ položaja.
+Primjer:
+
+12-bitni enkoder → 2¹² = 4096 različitih kutnih pozicija u jednom okretaju.
+Postoje i višekružni enkoderi (multi-turn) koji koriste dodatni mehanizam da pamte i broj okretaja.
+
+Prednosti apsolutnih enkodera
+
+Nema gubitka položaja nakon gašenja napajanja.
+
+Nema potrebe za inicijalizacijom (nema homing sekvence).
+
+Visoka točnost i rezolucija.
+
+Mogu biti optički, magnetski ili induktivni.
+
+Primjena u robotici
+
+Koriste se na zglobovima robota i servo motorima gdje trebaš precizno znati orijentaciju u svakom trenutku – čak i ako se sustav resetira.
+Na primjer, robot ruke mora znati točno pod kojim je kutom lakat i bez da se “vrati u nulu”.
+
+Što radi inkrementalni enkoder?
+
+Inkrementalni enkoder ne zna apsolutni položaj, nego mjeri promjenu položaja — dakle, koliko se i u kojem smjeru osovina pomaknula.
+On broji “impulse” dok se osovina okreće.
+Ne zna di je, ali zna da se pomiče
+
+Kad ga ugasiš – zaboravi položaj. Kad ga upališ – krene iz nule i moraš ga “nultirati” (tzv. homing procedura).
+
+Princip rada
+
+Unutra opet imaš rotirajući disk s prozračnim i neprozračnim prorezima.
+Na jednoj strani je LED dioda, a na drugoj fototranzistor (optički senzor).
+Kad se disk vrti, svjetlost prolazi i prekida se — senzor to vidi kao niz impulsa (1, 0, 1, 0...).
+
+Ti impulsi govore koliko se osovina okrenula.
+Ako, primjerice, disk ima 500 proreza → svaki okretaj daje 500 impulsa → možeš izračunati kut po impulsu.
+
+Detekcija smjera rotacije
+
+Da bi znao u kojem smjeru se vrti osovina, enkoder ima dva kanala (A i B).
+Oni su pomaknuti fazno za 90° – tzv. kvadraturni signal.
+Ako kanal A vodi B → vrti se naprijed.
+Ako B vodi A → vrti se nazad.
+
+Zato se često zove i kvadraturni enkoder.
+
+Referentni impuls (Z-kanal)
+
+Neki inkrementalni enkoderi imaju i Z impuls – to je jedan impuls po okretaju i služi za označavanje “nulte točke”.
+Kad ga očitaš, znaš da si točno na početnoj poziciji.
+
+Vrste signala
+
+TTL (digitalni) – za brze sustave, do nekoliko MHz.
+
+Sin/Cos (analogni) – koristi se u preciznim servo sustavima (npr. interpolacija između impulsa).
+
+Prednosti inkrementalnih enkodera
+
+Jednostavniji i jeftiniji od apsolutnih.
+
+Brzi odziv, idealni za mjerenje brzine i relativnog položaja.
+
+Lako se integriraju s mikrokontrolerima i PLC-ovima.
+
+Nedostaci
+
+Gubi položaj kad se ugasi napajanje.
+
+Potrebna inicijalizacija (homing) pri svakom pokretanju.
+
+Može izgubiti impulse pri vrlo visokim brzinama ako sustav nije sinkroniziran.
+
+Primjena u robotici
+
+Koristi se u servo sustavima, kotačima mobilnih robota, transportnim trakama, CNC pogonima – svuda gdje ti je bitno znati koliko se nešto pomaknulo i kojom brzinom.
