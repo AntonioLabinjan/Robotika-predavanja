@@ -642,3 +642,261 @@ pretvorbu između koordinatnih sustava (npr. iz kartezijskog u robotski)
 
 Dakle, nije da polarne koordinate direktno “rotiraju po osi”, nego one koriste kutove (rotacije) kao jedan od načina da opišu položaj točke u prostoru.
 Rotacije po osi su više stvar zglobova robota i Eulerovih kutova ili rotacijskih matrica — što je korak iznad samih koordinata.
+
+Osnovni konstrukcijski elementi robota
+Upravljanje robotskim manipulatorom => vezano uz problem planiranja putanje => generiranje referentnih ulaza u sustav upravljanja kretanjem manipulatora
+Robot = mehanički + energetski + senzorski sustav => nema sposobnost obavljanja određenog zadatka, nego nam treba upravljački sustav koji preko pogona u zglobovima izvršava ciljano kretanje
+Pogon pretvara električne upravljačke signale iz računala u mehaničko kretanje
+Kretanje robota se ostvaruje kretanjem svake upravljane koordinate zasebno
+Zadatak upravljačke strukture robota => nadgledanje kretnji robota i usporedba s referentnim signalima u cilju detekcije pogrešaka kretanja
+Signali pogrešaka => obrađuju se upravljačkim algoritmima i koriste se za upravljanje kretnjama robotskog manipulatora
+
+Izbor pogona ovisi o:
+Dinamičkim svojstvima robota
+Traženoj točnosti
+Građi 
+Konfiguraciji robota
+
+Zadatak može biti:
+Izvršavanje zadanog kretanja manipulatora u slobodnom prostoru
+Izvršavanje zadanog kretanja i kontaktnih sila manipulatora čiji vrh manipulatora dolazi u dodir s okolinom
+
+2 aspekta
+Upravljanje kretanjem u slobodnom prostoru => npr. profesor samo šeće po razredu simo-tamo
+Interakcijsko upravljanje u ograničenom prostoru => npr. profesor šeće do televizije da bi je upalija na botun
+
+Izbor strukture upravljanje ovisi o:
+Mehaničkoj strukturi manipulatora =>nije isto upravljati zglobovima ili pozicijom robota u prostoru
+
+2 strukture upravljanja
+Upravljačka struktura zglobovskog prostora => u kojem se obavljaju upravljačke radnje
+Upravljačka struktura operacijskog prostora => u kojem se zadaju specifikacije određenih radnji (kretanje manipulatora i sile)
+
+Problem upravljanja u zglobovskom prostoru
+2 dijela
+Problem inverzne kinematike manipulatora kako bi se transformiralo zahtijevano kretanje iz operacijskog prostora u zglobovski
+Zatim se pristupa sintezi upravljačke strukture u zglobovskom prostoru => praćenje trajektorije
+Problem: u upravljačkoj strukturi zglobovskog prostora nisu uključene varijable operacijskog prostora koje su upravljane unutar otvorenog kruga
+
+Problem upravljanje u operacijskom prostoru
+Velika složenost algoritma upravljanje
+Inverzna kinematika je sada ugrađena u upravljačku petlju povratne veze
+Prednost: mogućnost da direktno djelujemo na varijable operacijskog prostora
+Mjerenje varijabli ne obavlja se direktno, već kroz razvoj funkcija direktne kinematike počevši od izmjerenih varijabli zglobovskog prostora
+
+Komponente industrijskih robota:
+Upravljački sustav
+Manipulator
+Vrh manipulatora (alat/hvataljka)
+Napajanje
+Računalo
+
+Upravljački sustav upravlja svim pokretima mehaničkog sustava
+Jezgra je mikroprocesor koji je povezan s ulazom i izlazom i nadzornim uređajima
+Naredbe aktiviraju regulaciju pokretnog mehanizma (regulacijski sustavi, pojačala i senzori)
+
+U sustavima robotike, **upravljanje se obično dijeli u tri hijerarhijske razine** koje zajedno čine cjelinu — od planiranja ciljeva do preciznog kretanja motora. Evo kako to ide redom:
+
+---
+
+### **1. Glavna razina (eng. Supervisory / Task Level)**
+
+Ovo je **“mozak” robota** — razina koja donosi **odluke o zadacima** koje robot treba izvršiti.
+Na toj razini se odvija:
+
+* planiranje zadataka i ponašanja (npr. “idi do točke B”, “donesi predmet”)
+* obrada senzorskih podataka visoke razine (kameri, lidar, karte prostora)
+* komunikacija s korisnikom ili drugim robotima
+* donošenje odluka pomoću AI-a, logike ili planera (npr. planiranje puta pomoću A* ili Dijkstra algoritma)
+
+💡 **Primjer:**
+Mobilni robot odlučuje da mora pokupiti objekt i odnijeti ga na stol. Ne bavi se još detaljima kretanja — samo zna *što* treba napraviti.
+
+---
+
+### **2. Razina upravljanja trajektorijom (eng. Trajectory Control / Path Planning Level)**
+
+Ova razina prevodi **ciljeve iz glavne razine** u **konkretne putanje** koje robot mora slijediti.
+Tu se definira **kako će se robot kretati** — u smislu pozicija, brzina i ubrzanja tijekom vremena.
+
+Zadatci uključuju:
+
+* planiranje glatke trajektorije (izbjegavanje prepreka, ograničenja brzine)
+* inverznu kinematiku (izračun zglobnih kutova za zadanu poziciju)
+* sinkronizaciju više osi robota
+
+💡 **Primjer:**
+Ako glavni sloj kaže “idi do točke B”, ovaj sloj izračuna *putanju* kojom će robot doći do te točke — uz poštivanje ograničenja brzine, zglobova, i bez sudara.
+
+---
+
+### **3. Razina upravljanja aktuatorima (eng. Actuator / Servo Level)**
+
+To je **najniža i najbrža razina upravljanja** — direktna kontrola motora, serva i aktuatora.
+Cilj joj je da stvarno *izvede* ono što su gornje razine planirale.
+
+Na ovoj razini se odvija:
+
+* regulacija položaja, brzine i momenta (PID regulatori)
+* kompenzacija pogrešaka senzora
+* brze petlje povratne veze (feedback control loop)
+
+💡 **Primjer:**
+Ako razina trajektorije kaže “zakreni zglob 3 za 15° u 0.2 s”, ova razina brine da motor to točno napravi — glatko i precizno, bez previše oscilacija.
+
+---
+
+### **Ukratko hijerarhija izgleda ovako:**
+
+```
+[ Glavna razina ]        → Planiranje zadataka, odluke
+        ↓
+[ Upravljanje trajektorijom ] → Planiranje kretanja, izračun putanja
+        ↓
+[ Upravljanje aktuatorima ]   → Precizno izvršavanje naredbi motora
+```
+
+---
+
+Povratna veza => komunikacija koja omogućava da provjerimo dali je trenutna veličina ono što želimo ili ne
+Npr. kad pojačavamo radio, povratna veza je uho koje vidi dali je preglasno ili ne
+
+---
+
+## 🔹 **1. Sustav s otvorenom petljom (Open-loop system)**
+
+### **Definicija:**
+
+To je sustav **bez povratne veze** — izlaz ne utječe na ulaz.
+Regulator (ili upravljač) šalje naredbu izvršnom elementu (aktuatoru), ali **ne provjerava** je li željeni rezultat stvarno postignut.
+
+### **Shema:**
+
+```
+[Upravljač] → [Pogon / Proces] → [Izlaz]
+```
+
+(Nema povratne veze!)
+
+### **Karakteristike:**
+
+* Nema mjerenja stvarnog izlaza.
+* Nema korekcije pogreške.
+* Jednostavan, jeftin i brži jer nema senzora ni dodatne obrade.
+* Osjetljiv na smetnje i promjene u sustavu.
+
+### **Prednosti:**
+
+✅ Jednostavna konstrukcija
+✅ Manji trošak
+✅ Nema problema sa stabilnošću jer nema povratne veze
+
+### **Nedostaci:**
+
+❌ Nema korekcije – ako dođe do pogreške, sustav ne zna
+❌ Osjetljiv na vanjske smetnje (temperatura, trenje, opterećenje)
+❌ Niska točnost
+
+### **Primjer:**
+
+* Mikrovalna pećnica: postaviš 2 minute i ne pita se je li hrana stvarno zagrijana.
+* Stroj koji sipa tekućinu 5 sekundi bez provjere koliko je stvarno izlilo.
+
+---
+
+## 🔹 **2. Sustav sa zatvorenom petljom (Closed-loop system / Feedback control)**
+
+### **Definicija:**
+
+Ovdje se **izlaz mjeri i uspoređuje s referentnom vrijednošću**, a razlika (pogreška) se koristi za korekciju upravljačkog signala.
+Drugim riječima — sustav *sam sebe kontrolira* pomoću povratne informacije.
+
+### **Shema:**
+
+```
+         +--------------------------+
+         ↓                          |
+[Referenca] → [Regulator] → [Pogon] → [Izlaz]
+                     ↑                 |
+                     |                 |
+                     +----[Senzor]-----+
+```
+
+### **Karakteristike:**
+
+* Postoji **povratna veza** koja vraća informaciju o stvarnom stanju sustava.
+* Regulator neprestano računa **pogrešku** (error = željeno – stvarno).
+* Cilj je minimizirati pogrešku.
+
+### **Prednosti:**
+
+✅ Visoka točnost
+✅ Sposobnost kompenzacije smetnji i promjena opterećenja
+✅ Povećana stabilnost i robusnost sustava
+
+### **Nedostaci:**
+
+❌ Složeniji i skuplji (senzori, elektronika)
+❌ Može postati nestabilan ako je loše podešen (npr. PID koeficijenti)
+❌ Sporiji odziv zbog obrade povratne informacije
+
+### **Primjer:**
+
+* Termostat u sobi: mjeri temperaturu i uključuje/isključuje grijanje da održi zadanu vrijednost.
+* Servo motor u robotu: mjeri položaj i korigira napon dok ne postigne točan kut.
+
+---
+
+## 🔸 **Usporedna tablica**
+
+| Značajka            | Otvorena petlja     | Zatvorena petlja                           |
+| ------------------- | ------------------- | ------------------------------------------ |
+| Povratna veza       | Nema                | Ima                                        |
+| Točnost             | Niža                | Visoka                                     |
+| Složenost           | Jednostavan         | Složen                                     |
+| Trošak              | Manji               | Veći                                       |
+| Reakcija na smetnje | Nema korekcije      | Automatska korekcija                       |
+| Stabilnost          | Stabilan po dizajnu | Može postati nestabilan ako se loše podeši |
+
+---
+
+### **Ukratko:**
+
+* **Otvorena petlja** = *“izvrši naredbu i ne gledaj rezultat”*
+* **Zatvorena petlja** = *“izvrši, izmjeri, usporedi, ispravi”*
+
+---
+Karakteristike robota s otvorenom reg. petljom:
+Jeftiniji, jednostavniji za rad, precizan i pouzdan, jednostavan za održavanje, sposoban za rad na većim brzinama, maleni, za rad je potreban samo jednostavan programski kod
+
+Robot s zatvorenom regulacijskom petljom
+Signal se vraća kao povratna informacija i utječe na izlaznu veličinu
+Kod sustava za regulaciju gibanja gdje je potrebna preccizna regulacija položaja i brzine
+
+Karakteristike:
+skupi za nabavu, rad, održavanje
+Sofistiricrani regulatori (zatvorena petlja)
+Širok raspon mogućnosti
+Prijenos objekata s jedne točke na drugu (kao i duž kontinuirane putanje)
+Kompleksni programski kod za stabilan rad
+
+sastoji se od regulatora i procesa
+Upravlja se negazivnom povratnom vezom => želimo čim bolje ppodudaranje ulazne xr i izlazne x veličine
+xr => žečejna vrijednost koja se naziva vodeća veličina
+x => stvarna vrijednost, regulirana veličina
+Razlika između njih je regulacijsko odstupanje e
+Na izlazu se formulira upravljački signal ili postavna veličina u
+Ona djeluje na ulaz procesa suprostavljajući se djelovanju poremećajne veličine d
+Regulirana veličina se ponovno povratnom vezom vraća na početak sustava
+
+Za ocjenu ponašanja sustava koristei se POKAZATELJ KVALITETE UPRAVLJANJA
+Najbitniji djelovi dijagrama:
+Pogreška u stacionarnom stanju (steady-state error) → razlika između željenog i stvarnog izlaza nakon što sustav dosegne ravnotežu; pokazuje točnost regulacije.
+
+Nadvišenje (overshoot) → koliko izlaz privremeno premaši željenu vrijednost tijekom prijelaza; mjeri stabilnost i prigušenost sustava.
+
+Brzina odziva (response speed) → koliko brzo sustav reagira na promjenu referentne vrijednosti ili smetnju; veća brzina znači agilniji robot.
+
+Trajanje prijelazne pojave (settling time) → vrijeme potrebno da izlaz ostane unutar dopuštenog odstupanja oko zadane vrijednosti; pokazuje dinamičku stabilnost.
+
+Oscilarnost (oscillation) → stupanj titranja izlaza oko zadane vrijednosti; ukazuje na lošu prigušenost ili preveliku osjetljivost regulatora.
