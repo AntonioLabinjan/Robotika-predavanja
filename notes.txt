@@ -900,3 +900,46 @@ Brzina odziva (response speed) → koliko brzo sustav reagira na promjenu refere
 Trajanje prijelazne pojave (settling time) → vrijeme potrebno da izlaz ostane unutar dopuštenog odstupanja oko zadane vrijednosti; pokazuje dinamičku stabilnost.
 
 Oscilarnost (oscillation) → stupanj titranja izlaza oko zadane vrijednosti; ukazuje na lošu prigušenost ili preveliku osjetljivost regulatora.
+
+Pogreška u stacionarnom stanju => (željena vrijednost - stvarna vrijednost) / željena vrijednost u postocima
+
+Vrijeme porasta (rise time)
+
+Definicija: Vrijeme potrebno da izlaz poraste od 10% do 90% svoje konačne vrijednosti nakon promjene referentnog signala.
+
+Značenje: Pokazuje koliko brzo sustav počinje reagirati i približava se željenoj vrijednosti.
+
+Željeno: Što kraće vrijeme porasta → brža reakcija robota.
+
+Primjer: Ako robot dobije naredbu da pomakne ruku, rise time mjeri koliko mu treba da dosegne 90% željenog položaja.
+
+Vrijeme smirivanja (settling time)
+
+Definicija: Vrijeme nakon kojeg izlaz ostane unutar određenog odstupanja (obično ±2% ili ±5%) od željene vrijednosti.
+
+Značenje: Pokazuje koliko dugo traje prijelazna pojava prije nego što se sustav ustali.
+
+Željeno: Što kraće vrijeme smirivanja → brže i stabilnije upravljanje bez dugog titranja.
+
+Primjer: Robot pomakne ruku i malo oscilira oko cilja – settling time je trenutak kad prestane to titranje i pozicija se stabilizira.
+
+Oscilarnost
+Oscilarnost (oscillations / damping behavior)
+
+Definicija:
+Pojava periodičnog titranja izlaza oko zadane (referentne) vrijednosti tijekom prijelazne pojave.
+
+Značenje:
+Oscilarnost pokazuje koliko je sustav prigušen (damped). Ako je prigušenje premalo — izlaz titra previše; ako je preveliko — sustav postaje spor.
+
+Uzrok:
+Najčešće rezultat lošeg podešavanja regulatora (npr. prevelik proporcionalni dobitak u PID-u) ili dinamičkih svojstava sustava (inercija, elastičnost, kašnjenja).
+
+Željeno:
+Umjereno prigušen sustav — minimalne ili kontrolirane oscilacije bez prekomjernog titranja i bez presporog odziva.
+
+Primjer:
+Kad robotska ruka dođe blizu cilja i krene “drhtati” oko točke pozicije – to je oscilarnost zbog prejakog odziva regulatora.
+
+Oscilarnost pokazuje koliko sustav titra prije nego se smiri — previše oscilacija znači nestabilnost, premalo znači tromost.
+Cilj je optimum: brzo reagirati, ali bez titranja.
