@@ -1,0 +1,8 @@
+- dobit ćemo specs xml file od robota
+- morat ćemo nać robota na internetu, pogledat specs
+- upisat te vrijendosti u xml
+- uglavnom budu 2 fajla za svakega robota (najbolje skinut oba :D )
+- vrijednosti koje ne moremo nać postavit na -1
+- u zadatku će točno pisat ča treba ispunit i ča da stavimo ako ne moremo nać
+- pole ćemo taj xml koristit za simulacije (triba ga dobro popunit da se ne sjebemo hehe)
+Poanta prve zadaće je da se navadimo čitat specifikacije :D
