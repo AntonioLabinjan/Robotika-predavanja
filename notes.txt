@@ -943,3 +943,631 @@ Kad robotska ruka dođe blizu cilja i krene “drhtati” oko točke pozicije �
 
 Oscilarnost pokazuje koliko sustav titra prije nego se smiri — previše oscilacija znači nestabilnost, premalo znači tromost.
 Cilj je optimum: brzo reagirati, ali bez titranja.
+
+---
+
+# **📘 Cheatsheet: Vektori, Matrice i Tensori (Robotika Edition)**
+
+## **1. Vektori**
+
+Vektor je uređena lista brojeva koja opisuje smjer i veličinu.
+
+### **Zapis**
+
+```md
+v = [v₁, v₂, v₃]      # 3D vektor
+```
+
+### **Osnovne operacije**
+
+```md
+v + u                 # zbrajanje (komponentno)
+v − u                 # oduzimanje
+αv                    # množenje skalara s vektorom
+‖v‖ = sqrt(v·v)       # norma (duljina)
+v · u = ∑ vᵢuᵢ        # skalarni produkt
+v × u                 # vektorski produkt (samo u 3D)
+```
+
+### **Vektorski produkt (bitan u robotici)**
+
+```md
+v × u = [ 
+  v₂u₃ − v₃u₂,
+  v₃u₁ − v₁u₃,
+  v₁u₂ − v₂u₁
+]
+```
+
+---
+
+## **2. Matrice**
+
+Matrica je 2D struktura brojeva. U robotici se koriste za transformacije, rotacije, Jacobiane itd.
+
+### **Zapis**
+
+```md
+A = [ a₁₁  a₁₂
+      a₂₁  a₂₂ ]
+```
+
+### **Operacije nad matricama**
+
+```md
+A + B                   # zbrajanje istih dimenzija
+A - B                   # oduzimanje
+αA                      # množenje skalara
+Aᵀ                      # transponiranje
+```
+
+### **Množenje matrica**
+
+Za A(m×n) i B(n×p):
+
+```md
+C = A · B               # rezultat je matrica dimenzije (m×p)
+Cᵢⱼ = ∑ Aᵢₖ Bₖⱼ
+```
+
+### **Množenje matrice i vektora**
+
+```md
+A (m×n) · v (n×1) = w (m×1)
+```
+
+### **Determinanta**
+
+```md
+det(A)                  # mjeri koliko matrica "sklapa" prostor
+```
+
+Za 2×2:
+
+```md
+det(A) = a₁₁a₂₂ - a₁₂a₂₁
+```
+
+### **Inverz**
+
+Postoji samo ako det(A) ≠ 0.
+
+```md
+A⁻¹                     # matrica koja satisfies A·A⁻¹ = I
+```
+
+Za 2×2:
+
+```md
+A⁻¹ = (1/det(A)) [ a₂₂  -a₁₂
+                  -a₂₁   a₁₁ ]
+```
+
+---
+
+## **3. Tensori**
+
+U robotici se pojavljuju kao:
+
+* Jacobiani (ponekad višedimenzionalni)
+* transformacijske matrice u nizu
+* dinamički sustavi viših dimenzija
+
+Tensor = generalizacija matrica.
+
+### **Rang**
+
+```md
+skalar → rang 0
+vektor → rang 1
+matrica → rang 2
+tensor → rang ≥3
+```
+
+### **Primjeri**
+
+```md
+T[i, j, k]              # 3D tensor
+```
+
+---
+
+## **4. Posebne matrice u robotici**
+
+### **Identitetska**
+
+```md
+I = [1 0 0
+     0 1 0
+     0 0 1]
+```
+
+### **Rotacijske matrice (oko osi)**
+
+Ovo je must-know.
+
+#### Oko x:
+
+```md
+Rₓ(θ) = [
+  1     0        0
+  0   cosθ   -sinθ
+  0   sinθ    cosθ
+]
+```
+
+#### Oko y:
+
+```md
+Rᵧ(θ) = [
+  cosθ   0   sinθ
+    0    1    0
+ -sinθ  0   cosθ
+]
+```
+
+#### Oko z:
+
+```md
+R_z(θ) = [
+  cosθ  -sinθ  0
+  sinθ   cosθ  0
+    0      0   1
+]
+```
+
+---
+
+## **5. Homogene transformacije (ključ robotike)**
+
+Za kombiniranje translacije i rotacije.
+
+```md
+T =
+[ R  p ]
+[ 0  1 ]
+```
+
+gdje je:
+
+* R rotacijska matrica (3×3)
+* p vektor translacije (3×1)
+
+### **Primjeri**
+
+Primjena transformacije:
+
+```md
+x_world = T · x_local
+```
+
+Sastavljanje transformacija:
+
+```md
+T_AB · T_BC = T_AC
+```
+
+---
+
+## **6. Jacobiani (kratko i jasno)**
+
+U robotici Jacobian povezuje:
+
+```md
+v = J(q)·q̇            # brzine zglobova → brzina krajnjeg efektora
+```
+
+Operacije koje moraš znati:
+
+```md
+Jᵀ                    # koristi se u kontrolnim algoritmima
+J⁺                   # pseudo-inverz za redundantne robote
+```
+
+---
+
+## **7. Brza tablica za vježbanje**
+
+| Objekt  | Rang | Operacije                            |
+| ------- | ---- | ------------------------------------ |
+| Skalar  | 0    | +, -, ×, ÷                           |
+| Vektor  | 1    | +, -, dot, cross, norma              |
+| Matrica | 2    | +, -, ×, transponiranje, det, inverz |
+| Tensor  | ≥3   | indeksiranje, contraction, reshape   |
+
+---
+
+
+---
+
+# **📘 Ortonormirani vektori**
+
+* Skup vektora koji su **međusobno ortogonalni** i **svaki ima normu 1**.
+* Znači:
+
+  ```md
+  rᵢ · rⱼ = 0     # za i ≠ j   (ortogonalnost)
+  rᵢ · rᵢ = 1     # norma 1    (normalizirani)
+  ```
+* U robotici se koriste kao **osne jedinice lokalnog koordinatnog sustava**.
+
+Primjer u 3D:
+
+```md
+r₁, r₂, r₃ su ortonormirani ⇔ čine bazu koordinatnog sustava.
+```
+
+---
+
+# **📘 Matrica rotacije (r₁, r₂, r₃)**
+
+* Rotacijska matrica u 3D je:
+
+  ```md
+  R = [ r₁  r₂  r₃ ]
+  ```
+* Svaki stupac je jedan ortonormirani vektor:
+
+  * r₁ = smjer x-osi sustava
+  * r₂ = smjer y-osi
+  * r₃ = smjer z-osi
+
+Svojstva:
+
+```md
+RᵀR = I
+det(R) = +1
+stupci su ortonormirani
+```
+
+---
+
+# **📘 U robotici — orijentacija alata**
+
+Kad znaš r₁, r₂, r₃, znaš kako je alat zakrenut u prostoru.
+
+* R opisuje **nagib, rotaciju i zakretanje alata** u odnosu na bazni koordinatni sustav.
+* Transformacija položaja alata:
+
+  ```md
+  p_world = R · p_tool + t
+  ```
+* Često se piše kao homogena transformacija:
+
+  ```md
+  T = [ R  t ]
+      [ 0  1 ]
+  ```
+
+Zaključak:
+
+* **Stupci rotacijske matrice su tvoje osi alata.**
+* Ako su ortonormirani, alat se ponaša kako treba.
+* Ako nisu, sustav je geometrijski nekonzistentan i robot će "divljati".
+
+Jasno Antonio. Evo čiste natuknice bez introa.
+
+---
+
+# **Kinematska pretvorba unaprijed (Forward Kinematics)**
+
+* Povezuje konfiguraciju robota ( q = [q_1, q_2, ..., q_n] ) s položajem i orijentacijom alata.
+
+* Računa homogenu transformaciju od baze do efektora:
+
+  ```md
+  T₀ⁿ(q) = T₀¹(q₁) · T¹²(q₂) · ... · Tⁿ⁻¹ⁿ(qₙ)
+  ```
+
+* Svaka parcijalna transformacija:
+
+  ```md
+  Tᵢⁱ⁺¹ =
+  [ Rᵢⁱ⁺¹(qᵢ)   pᵢⁱ⁺¹(qᵢ) ]
+  [    0            1       ]
+  ```
+
+* Ako se koriste DH parametri:
+
+  ```md
+  Tᵢⁱ⁺¹ =
+  [ cosθᵢ   -sinθᵢcosαᵢ   sinθᵢsinαᵢ   aᵢcosθᵢ ]
+  [ sinθᵢ    cosθᵢcosαᵢ  -cosθᵢsinαᵢ   aᵢsinθᵢ ]
+  [   0          sinαᵢ         cosαᵢ      dᵢ    ]
+  [   0            0             0         1     ]
+  ```
+
+* Rezultat daje:
+
+  ```md
+  R₀ⁿ(q)   # orijentacija alata
+  p₀ⁿ(q)   # položaj alata
+  ```
+
+Cilj je odredtiti nepoznatei položaj i orijentaciju vrha alata u odnosu na referentni mirni koordinatni sustav
+Rješavanje problema:
+Definiranje desno orijentiranih koordinatnih sustava vrhu alata i svim zglobovima
+Kinematički parametri:
+Evo čiste natuknice, bez uvoda.
+
+---
+
+# **Kinematički parametri zgloba**
+
+* **Kut zgloba (θ)**
+
+  * Varijabla kod rotacijskog zgloba.
+  * Opisuje zakretanje oko osi zgloba.
+
+* **Udaljenost zgloba (d)**
+
+  * Varijabla kod translacijskog zgloba.
+  * Opisuje pomak duž osi zgloba.
+
+* **Rotacijski zglob (revolute)**
+
+  * Promjenjivi parametar: θ
+  * Ostali DH parametri (a, α, d) konstantni.
+  * Stvara rotaciju oko osi zgloba.
+
+* **Translacijski zglob (prismatic)**
+
+  * Promjenjivi parametar: d
+  * Ostali DH parametri (a, α, θ) konstantni.
+  * Stvara translaciju duž osi zgloba.
+
+Evo kratko i čisto.
+
+
+# **Kinematički parametri članka**
+
+* **Duljina članka (a)**
+
+  * Udaljenost između osi dvaju susjednih zglobova.
+  * Leži na zajedničkoj normalnoj između osi.
+  * DH parametar koji određuje vodoravnu geometriju robota.
+
+* **Zakret članka (α)**
+
+  * Kut između osi dvaju susjednih zglobova.
+  * Mjeri rotaciju oko duljine članka a.
+  * Definira prostorno "uvijanje" između osi.
+
+
+| Parametar             | Oznaka | Značenje                        | Varijabilnost                         |
+| --------------------- | ------ | ------------------------------- | ------------------------------------- |
+| **Kut zgloba**        | θᵢ     | Rotacija oko osi zgloba zᵢ      | Varijabilan kod rotacijskog zgloba    |
+| **Udaljenost zgloba** | dᵢ     | Translacija duž osi zgloba zᵢ   | Varijabilan kod translacijskog zgloba |
+| **Duljina članka**    | aᵢ     | Udaljenost između osi zᵢ i zᵢ₊₁ | Obično konstantna                     |
+| **Zakret članka**     | αᵢ     | Kut između osi zᵢ i zᵢ₊₁ oko aᵢ | Obično konstantan                     |
+
+
+---
+
+# **Denavit–Hartenbergova metoda**
+
+**Što je to?**
+
+* Standardizirani postupak za opisivanje geometrije robota.
+* Svakom zglobu i članku dodjeljuješ 4 parametra: ( θ, d, a, α ).
+* Daje konzistentan način slaganja transformacija ( T_i^{i+1} ).
+
+---
+
+# **Zašto se koristi?**
+
+* Jedinstveni format za modeliranje robota.
+* Olakšava izračun forward kinematike.
+* Jednostavno se pretvara u homogenu transformaciju.
+* Standard u svim udžbenicima, laboratorijima i industriji.
+* Omogućuje postupno građenje: članak po članak.
+
+---
+
+# **Kako se implementira (koraci)?**
+
+1. **Odaberi osi zgloba**
+
+   * Za svaki zglob definira se os ( z_i ) (os rotacije ili translacije).
+
+2. **Definiraj zajedničku normalu**
+
+   * Pronađi najkraću liniju koja povezuje osi ( z_i ) i ( z_{i+1} ).
+   * To je smjer osi ( x_i ).
+
+3. **Izmjeri DH parametre**
+
+   * ( θ_i ): kut oko ( z_i )
+   * ( d_i ): pomak uz ( z_i )
+   * ( a_i ): duljina zajedničke normale
+   * ( α_i ): kut oko ( x_i ), zakret članka
+
+4. **Složi transformaciju**
+   Koristi standardnu DH matricu:
+
+   ```md
+   Tᵢⁱ⁺¹ =
+   [ cosθᵢ   -sinθᵢcosαᵢ   sinθᵢsinαᵢ   aᵢcosθᵢ ]
+   [ sinθᵢ    cosθᵢcosαᵢ  -cosθᵢsinαᵢ   aᵢsinθᵢ ]
+   [   0          sinαᵢ         cosαᵢ      dᵢ    ]
+   [   0            0             0         1     ]
+   ```
+
+5. **Pomnoži sve transformacije**
+
+   ```md
+   T₀ⁿ = T₀¹ · T¹² · ... · Tⁿ⁻¹ⁿ
+   ```
+
+   Rezultat je položaj i orijentacija krajnjeg efektora.
+
+---
+
+# **Ključne stavke**
+
+* Zglob → os ( z_i )
+* Članak → os ( x_i )
+* 4 DH parametra po članku
+* Jedna homogena transformacija za svaki segment
+* Množi se redom od baze do alata
+* Daje jasan i univerzalan model robota
+
+---
+
+---
+
+# **Matrica manipulatora s R(q), p(q), v i σ**
+
+* Orijentacija alata:
+
+  ```md
+  R(q)   # 3×3 rotacijska matrica
+  ```
+
+* Položaj vrha alata:
+
+  ```md
+  p(q)   # 3×1 vektor položaja
+  ```
+
+* Vektor perspektive (najčešće):
+
+  ```md
+  v = [0 0 0]ᵀ
+  ```
+
+* Koeficijent skaliranja:
+
+  ```md
+  σ     # skalira translacijski dio
+  ```
+
+---
+
+# **Opći oblik matrice manipulatora**
+
+```md
+J =
+[ σ R(q)     0 ]
+[  0       R(q) ]
+```
+
+* **Gornji blok**: utjecaj zglobova na translacijski dio (skaliran s σ).
+* **Donji blok**: utjecaj zglobova na rotaciju alata.
+* R(q) se koristi zbog pretvaranja iz koordinatnog sustava alata u bazni sustav.
+
+---
+
+# **Ako se koristi p(q) i v**
+
+U zadacima gdje se definira transformacija točke kroz orijentaciju i perspektivu:
+
+```md
+x(q) = σ R(q) (p(q) − v)
+```
+
+Diferencijacija daje Jacobian:
+
+```md
+ẋ = σ R(q) J_p q̇ + σ Ṙ(q)(p(q) − v)
+```
+
+gdje je:
+
+* ( J_p ) Jacobian položaja
+* ( Ṙ(q) = R(q) S(ω) ) (S je matrica križnog produkta)
+
+---
+
+# **Ključne stavke**
+
+* R(q) određuje orijentaciju koordinatnog sustava alata.
+* p(q) određuje poziciju vrha alata.
+* v je referentna točka u prostoru.
+* σ skalarno mijenja doprinos translacije (perspektiva / projekcija / skaliranje).
+* Matrica manipulatora nastaje diferenciranjem zadane funkcije pozicije-orijentacije. + množenjem svih n transformacijskih matrica
+
+Evo ti čisto, kratko i spremno za skriptu.
+
+---
+
+# **Kinematska pretvorba unaprijed – troosni planarni manipulator (3R planar)**
+
+## **Cilj**
+
+Dobiti jednadžbe položaja vrha alata:
+
+```md
+p(q) = [ x(q) 
+         y(q) ]
+```
+
+Orijentacija u planaru je samo jedan kut:
+
+```md
+φ(q) = θ₁ + θ₂ + θ₃
+```
+
+---
+
+# **1. Geometrijska metoda**
+
+Za planarni robot s člancima ( a₁, a₂, a₃ ) i kutovima ( θ₁, θ₂, θ₃ ):
+
+```md
+x = a₁ cosθ₁ + a₂ cos(θ₁ + θ₂) + a₃ cos(θ₁ + θ₂ + θ₃)
+y = a₁ sinθ₁ + a₂ sin(θ₁ + θ₂) + a₃ sin(θ₁ + θ₂ + θ₃)
+φ = θ₁ + θ₂ + θ₃
+```
+
+Ovo je konačna jednadžba forward kinematike.
+
+---
+
+# **2. DH metoda**
+
+Standardni DH parametri za 3R planar:
+
+| i | θᵢ | dᵢ | aᵢ | αᵢ |
+| - | -- | -- | -- | -- |
+| 1 | θ₁ | 0  | a₁ | 0  |
+| 2 | θ₂ | 0  | a₂ | 0  |
+| 3 | θ₃ | 0  | a₃ | 0  |
+
+Transformacija po članku:
+
+```md
+Tᵢⁱ⁺¹ =
+[ cosθᵢ  -sinθᵢ   0   aᵢcosθᵢ ]
+[ sinθᵢ   cosθᵢ   0   aᵢsinθᵢ ]
+[   0       0     1      0    ]
+[   0       0     0      1    ]
+```
+
+Ukupna transformacija:
+
+```md
+T₀³ = T₀¹ T¹² T²³
+```
+
+Iz T₀³ uzmeš:
+
+* gornja dva reda zadnji stupac → ( x, y )
+* rotacijski dio → kut ( φ )
+
+Rezultat je ista jednadžba kao u geometrijskoj metodi.
+
+---
+
+# **Jednadžba koju želiš dobiti (konačni oblik)**
+
+```md
+p(q) =
+[ a₁ cosθ₁ + a₂ cos(θ₁ + θ₂) + a₃ cos(θ₁ + θ₂ + θ₃) ]
+[ a₁ sinθ₁ + a₂ sin(θ₁ + θ₂) + a₃ sin(θ₁ + θ₂ + θ₃) ]
+
+φ = θ₁ + θ₂ + θ₃
+```
+
+Zglobovi u robotici se numeriraju od dna (tamo di je baza)
+Po defaultu krećemo od 1, ali moremo se prebacit i na to da počinjemo od 0
