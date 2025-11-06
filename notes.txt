@@ -1571,3 +1571,29 @@ p(q) =
 
 Zglobovi u robotici se numeriraju od dna (tamo di je baza)
 Po defaultu krećemo od 1, ali moremo se prebacit i na to da počinjemo od 0
+
+
+Inverzna kinematika robota
+Inverzna kinematika (IK) = računanje kutova zglobova da krajnja točka robota dođe na željenu poziciju i orijentaciju.
+
+Suprotno od direktne kinematike, gdje se iz poznatih kutova računa položaj krajnje točke.
+
+Problemi IK:
+
+Višestruka rješenja (npr. lakat gore/dolje)
+
+Singularnosti (gubi se sloboda kretanja u određenim položajima)
+
+Nerealna rješenja (kutovi izvan fizičkih ograničenja)
+
+Nelinearnost jednadžbi → često treba numeričko rješenje
+
+Primjena: robotske ruke, manipulatori, humanoidni roboti, CNC strojevi.
+
+
+OBIČNA VS INVERZNA KINEMATIKA:
+
+- Obična/direktna kinematika: Znaš kutove → izračunaš gdje se alat/efektor nalazi.
+
+- Inverzna kinematika: Znaš gdje želiš da alat/efektor bude → izračunaš koje kutove zglobova trebaš da ga dovedeš tamo.
+
