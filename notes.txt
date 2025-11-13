@@ -1597,3 +1597,835 @@ OBIČNA VS INVERZNA KINEMATIKA:
 
 - Inverzna kinematika: Znaš gdje želiš da alat/efektor bude → izračunaš koje kutove zglobova trebaš da ga dovedeš tamo.
 
+Dinamika robota
+Potrebno za: projektiranje konstrukcije robota, dimenzioniranje pogona zglobova, modeliranje i simuliranje robota, projektiranje sustava pravljanje robota
+
+Lagrange-Eulerov model
+Newton-Eulerov (rekurzivno)
+
+Lagrangian => koristi česticu mase, kinetičku energiju, potencijalnu energiju, 2. newtonov zakon => jednadžba za prvi stupanj slobode gibanja
+Prva derivacija od x je brzina
+Druga derivacija od x je akceleracija
+
+Lagrange eulerova jednadžba za poopćene koordinate sustava s n stupnjeva slobode gibanja
++ jednadžba za i-ti zglob
+
+
+---
+
+## 🔹 Sustav s *n* stupnjeva slobode
+
+Pretpostavi da imaš robotski manipulator s **n zglobova** — recimo rotacijskih ili translacijskih.
+Onda definiramo **poopćene koordinate**:
+[
+q = [q_1, q_2, ..., q_n]^T
+]
+gdje je ( q_i ) kut ili pomak koji opisuje položaj *i-tog* zgloba.
+
+---
+
+## 🔹 Lagrangeova jednadžba općenito
+
+Polazi se od **Lagrangeove funkcije**:
+[
+L = T - V
+]
+gdje su:
+
+* ( T ) — **kinetička energija** sustava,
+* ( V ) — **potencijalna energija** sustava.
+
+---
+
+
+---
+
+## 🔹 1. KINETIČKA ENERGIJA ROBOTA — ( T )
+
+Kinetička energija opisuje **energiju gibanja svih dijelova manipulatora**, dakle i translacijsku i rotacijsku komponentu.
+
+Za svaki link ( i ) vrijedi:
+
+[
+T_i = \frac{1}{2} m_i v_{c_i}^T v_{c_i} + \frac{1}{2} \omega_i^T I_i \omega_i
+]
+
+gdje je:
+
+* ( m_i ) – masa i-tog linka,
+* ( v_{c_i} ) – brzina težišta tog linka,
+* ( \omega_i ) – kutna brzina linka,
+* ( I_i ) – inercijska matrica linka (u koordinatnom sustavu težišta).
+
+Ukupna kinetička energija cijelog robota je:
+
+[
+T = \sum_{i=1}^{n} T_i
+]
+
+Ako koristiš **poopćene koordinate** ( q, \dot{q} ), možeš sve to napisati elegantno kao:
+
+[
+\boxed{ T = \frac{1}{2} \dot{q}^T M(q) \dot{q} }
+]
+
+gdje ( M(q) ) je **inercijska matrica** koja ovisi o konfiguraciji robota (zbog geometrije i položaja linkova).
+
+---
+
+## 🔹 2. POTENCIJALNA ENERGIJA ROBOTA — ( V )
+
+Potencijalna energija dolazi uglavnom od **gravitacije** (ponekad i opruga ako ih ima, ali to je rijetko kod manipulatora).
+
+Za svaki link ( i ):
+
+[
+V_i = m_i g^T h_i
+]
+
+ili jednostavnije (ako uzmemo ( g ) prema dolje i ( z ) kao visinu):
+
+[
+V_i = m_i g h_i
+]
+
+gdje je:
+
+* ( h_i ) – visina težišta linka u odnosu na referentnu ravninu,
+* ( g ) – gravitacijsko ubrzanje (obično 9.81 m/s²).
+
+Ukupna potencijalna energija:
+
+[
+\boxed{ V = \sum_{i=1}^{n} m_i g h_i }
+]
+
+---
+
+## 🔹 3. Spojeno u Lagrangeovu funkciju
+
+Sad imaš sve da definiraš **Lagrangian**:
+
+[
+\boxed{ L(q, \dot{q}) = T(q, \dot{q}) - V(q) }
+]
+
+I kad ubaciš to u Lagrangeovu jednadžbu:
+
+[
+\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{q}_i}\right) - \frac{\partial L}{\partial q_i} = \tau_i
+]
+
+dobiješ **jednadžbe gibanja** robota za svaki zglob.
+
+---
+
+## 🔹 4. Intuicija
+
+* ( T ) ti “osjeća” kako se masa raspoređuje i kako se zglobovi gibaju.
+* ( V ) ti govori koliko energije sustav ima zbog visine (gravitacije).
+* Kad sustav mijenja konfiguraciju, razlika među njima definira potrebne momente ( \tau ).
+
+---
+
+
+
+Za svaki i-ti zglob, vrijedi **Lagrange-Eulerova jednadžba**:
+
+[
+\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{q}_i} \right) - \frac{\partial L}{\partial q_i} = \tau_i
+]
+
+gdje je:
+
+* ( \dot{q}_i ) — brzina i-tog zgloba,
+* ( \tau_i ) — **poopćena sila** ili moment (npr. moment koji aktuator daje tom zglobu).
+
+---
+
+## 🔹 Matrični oblik za cijeli manipulator
+
+Kad to napišemo za svih ( n ) zglobova, dobijemo **kompaktnu matričnu jednadžbu gibanja robota**:
+
+[
+\boxed{ M(q),\ddot{q} + C(q, \dot{q}),\dot{q} + g(q) = \tau }
+]
+
+Evo što znači svaki pojam:
+
+* ( M(q) ) — **masa/inercijska matrica** (n×n),
+* ( C(q, \dot{q}) ) — **Coriolis i centripetalni članovi**,
+* ( g(q) ) — **gravitacijski momenti**,
+* ( \tau ) — vektor ulaznih **momenta zglobova** (što šalje kontroler/aktuator).
+
+---
+
+## 🔹 Za i-ti zglob posebno
+
+Ako izdvojiš samo i-tu komponentu, dobivaš:
+
+[
+\sum_{j=1}^{n} M_{ij}(q),\ddot{q}*j + \sum*{j=1}^{n} C_{ij}(q, \dot{q}),\dot{q}_j + g_i(q) = \tau_i
+]
+
+Dakle:
+
+* prvi član predstavlja **inercijske efekte**,
+* drugi član **Coriolis/centrifugalne interakcije među zglobovima**,
+* treći član **gravitaciju**,
+* desna strana **moment na i-tom zglobu**.
+
+---
+
+## 🔹 Intuicija zašto je to korisno u robotici
+
+Lagrange-Euler pristup:
+
+* radi s **skalarnim energijama**, što je puno elegantnije nego sa svim silama i momentima pojedinačno;
+* omogućuje lako **simboličko izvođenje** modela (npr. pomoću Python SymPy, MATLAB, ili Maple);
+* i najvažnije:
+  izravno vodi do **kontrolnih zakona** u robotici, npr. *computed torque control*, *inverse dynamics control*, itd.
+
+---
+
+
+---
+
+## 🔹 1. KINETIČKA ENERGIJA ROBOTA — ( T )
+
+Kinetička energija opisuje **energiju gibanja svih dijelova manipulatora**, dakle i translacijsku i rotacijsku komponentu.
+
+Za svaki link ( i ) vrijedi:
+
+[
+T_i = \frac{1}{2} m_i v_{c_i}^T v_{c_i} + \frac{1}{2} \omega_i^T I_i \omega_i
+]
+
+gdje je:
+
+* ( m_i ) – masa i-tog linka,
+* ( v_{c_i} ) – brzina težišta tog linka,
+* ( \omega_i ) – kutna brzina linka,
+* ( I_i ) – inercijska matrica linka (u koordinatnom sustavu težišta).
+
+Ukupna kinetička energija cijelog robota je:
+
+[
+T = \sum_{i=1}^{n} T_i
+]
+
+Ako koristiš **poopćene koordinate** ( q, \dot{q} ), možeš sve to napisati elegantno kao:
+
+[
+\boxed{ T = \frac{1}{2} \dot{q}^T M(q) \dot{q} }
+]
+
+gdje ( M(q) ) je **inercijska matrica** koja ovisi o konfiguraciji robota (zbog geometrije i položaja linkova).
+
+---
+
+## 🔹 2. POTENCIJALNA ENERGIJA ROBOTA — ( V )
+
+Potencijalna energija dolazi uglavnom od **gravitacije** (ponekad i opruga ako ih ima, ali to je rijetko kod manipulatora).
+
+Za svaki link ( i ):
+
+[
+V_i = m_i g^T h_i
+]
+
+ili jednostavnije (ako uzmemo ( g ) prema dolje i ( z ) kao visinu):
+
+[
+V_i = m_i g h_i
+]
+
+gdje je:
+
+* ( h_i ) – visina težišta linka u odnosu na referentnu ravninu,
+* ( g ) – gravitacijsko ubrzanje (obično 9.81 m/s²).
+
+Ukupna potencijalna energija:
+
+[
+\boxed{ V = \sum_{i=1}^{n} m_i g h_i }
+]
+
+---
+
+## 🔹 3. Spojeno u Lagrangeovu funkciju
+
+Sad imaš sve da definiraš **Lagrangian**:
+
+[
+\boxed{ L(q, \dot{q}) = T(q, \dot{q}) - V(q) }
+]
+
+I kad ubaciš to u Lagrangeovu jednadžbu:
+
+[
+\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{q}_i}\right) - \frac{\partial L}{\partial q_i} = \tau_i
+]
+
+dobiješ **jednadžbe gibanja** robota za svaki zglob.
+
+---
+
+## 🔹 4. Intuicija
+
+* ( T ) ti “osjeća” kako se masa raspoređuje i kako se zglobovi gibaju.
+* ( V ) ti govori koliko energije sustav ima zbog visine (gravitacije).
+* Kad sustav mijenja konfiguraciju, razlika među njima definira potrebne momente ( \tau ).
+
+---
+
+
+---
+
+## 🔹 1. Centar mase (CoM)
+
+Za kruto tijelo s raspodjelom mase ( \rho(\mathbf{r}) ), **centar mase** (težište) definiran je kao:
+
+[
+\mathbf{r}_c = \frac{1}{m} \int_V \rho(\mathbf{r}) , \mathbf{r} , dV
+]
+
+gdje je:
+
+* ( m = \int_V \rho(\mathbf{r}) , dV ) — ukupna masa tijela,
+* ( \mathbf{r} ) — vektor položaja neke točke unutar tijela,
+* ( V ) — volumen tijela.
+
+👉 U praksi, u robotici obično **poznaješ** centar mase svakog linka (iz CAD modela ili proizvođačke specifikacije), pa ne računaš integral ručno.
+
+---
+
+## 🔹 2. Tenzor inercije ( I )
+
+Tenzor inercije opisuje **otpornost tijela na rotaciju** oko neke osi.
+Definiran je integriranjem po volumenu:
+
+[
+I = \int_V \rho(\mathbf{r}) \left( |\mathbf{r}|^2 E - \mathbf{r} \mathbf{r}^T \right) dV
+]
+
+gdje je:
+
+* ( E ) — jedinična matrica (3×3),
+* ( \mathbf{r} ) — vektor položaja elementa mase u odnosu na os rotacije.
+
+Matrično:
+[
+I =
+\begin{bmatrix}
+I_{xx} & -I_{xy} & -I_{xz} \
+-I_{yx} & I_{yy} & -I_{yz} \
+-I_{zx} & -I_{zy} & I_{zz}
+\end{bmatrix}
+]
+
+Komponente su:
+[
+\begin{aligned}
+I_{xx} &= \int_V \rho(y^2 + z^2) , dV \
+I_{yy} &= \int_V \rho(x^2 + z^2) , dV \
+I_{zz} &= \int_V \rho(x^2 + y^2) , dV \
+I_{xy} &= \int_V \rho(xy) , dV \quad \text{itd.}
+\end{aligned}
+]
+
+💡 Intuitivno:
+
+* ( I_{xx}, I_{yy}, I_{zz} ) — "glavni momenti inercije"
+* ( I_{xy}, I_{xz}, I_{yz} ) — "produkti inercije" (koliko se rotacije oko osi međusobno miješaju).
+
+---
+
+## 🔹 3. Kutna brzina i veza s translacijskim brzinama
+
+Za **rotaciju** tijela vrijedi:
+
+[
+\mathbf{v} = \boldsymbol{\omega} \times \mathbf{r}
+]
+
+ili matrično (ako koristimo antisimetričnu matricu ( [\boldsymbol{\omega}]_\times )):
+
+[
+\mathbf{v} = [\boldsymbol{\omega}]_\times \mathbf{r}
+]
+
+gdje:
+[
+[\boldsymbol{\omega}]_\times =
+\begin{bmatrix}
+0 & -\omega_z & \omega_y \
+\omega_z & 0 & -\omega_x \
+-\omega_y & \omega_x & 0
+\end{bmatrix}
+]
+
+Ovo je osnovna veza koja povezuje **kutnu** i **translacijsko** gibanje točaka unutar tijela.
+
+---
+
+## 🔹 4. Kinetička energija preko tenzora inercije
+
+Kinetička energija jednog linka s masom ( m_i ), kutnom brzinom ( \omega_i ) i brzinom težišta ( v_{c_i} ):
+
+[
+T_i = \frac{1}{2} m_i v_{c_i}^T v_{c_i} + \frac{1}{2} \omega_i^T I_i \omega_i
+]
+
+👉 Ako se težište ne poklapa s osi rotacije, koristi se **Steinerov teorem (paralel axis theorem)**:
+
+[
+I_o = I_c + m , [d]^2
+]
+
+gdje je:
+
+* ( I_o ) — moment inercije oko nove osi,
+* ( I_c ) — moment inercije oko osi kroz težište,
+* ( d ) — udaljenost između osi.
+
+---
+
+## 🔹 5. Derivacije i integrali u dinamici
+
+Kad radiš Lagrangeov pristup, deriviraš prema vremenu:
+
+[
+\frac{d}{dt}\left( \frac{\partial T}{\partial \dot{q}_i} \right)
+]
+
+Tu nastaju složeni izrazi jer ( T ) ovisi i o ( q ) i o ( \dot{q} ), a u ( T ) su i:
+
+* brzine ( v_{c_i} ) (dobivene Jacobianom: ( v_{c_i} = J_{v_i}(q) \dot{q} )),
+* kutne brzine ( \omega_i = J_{\omega_i}(q) \dot{q} ).
+
+Kad se sve to spoji, dobiješ famoznu:
+[
+M(q)\ddot{q} + C(q, \dot{q})\dot{q} + g(q) = \tau
+]
+
+gdje sve one “derivacije i integrali” iz T i V na kraju daju fino strukturiranu dinamiku.
+
+---
+
+## 🔹 6. Intuicija u robotici
+
+* **Tenzor inercije** govori koliko “otporan” je link na promjenu rotacije.
+* **Centar mase** određuje gdje djeluje težina i kako se momenti raspoređuju.
+* **( v = \omega \times r )** povezuje translaciju i rotaciju — ne možeš rotirati bez pomaka točaka u prostoru.
+* I sve to se spaja u model gibanja koji upravlja sustavom robota.
+
+---
+
+---
+
+## 🔹 1. Moment inercije — što zapravo znači?
+
+Zamisli da rotiraš tijelo oko neke osi.
+**Moment inercije** ti kaže **koliko je teško promijeniti tu rotaciju** — tj. koliko “otpora” masa stvara na promjenu kutne brzine.
+
+Formalno, za os rotacije (npr. x-os), moment inercije je:
+
+[
+I_{xx} = \int_V \rho(y^2 + z^2) , dV
+]
+
+Analogno:
+[
+I_{yy} = \int_V \rho(x^2 + z^2) , dV
+]
+[
+I_{zz} = \int_V \rho(x^2 + y^2) , dV
+]
+
+gdje:
+
+* ( \rho ) — gustoća materijala,
+* ( V ) — volumen tijela,
+* ( (x, y, z) ) — koordinate točke u odnosu na centar mase ili neku os,
+* ( dV ) — element volumena.
+
+👉 Intuicija: što je **više mase udaljeno od osi**, to je **moment inercije veći**.
+Zato ti je lakše vrtit bučicu oko svoje osi nego propeler.
+
+---
+
+## 🔹 2. Produkti inercije — što su i čemu služe?
+
+Kad tijelo **nije simetrično**, masa se ne raspoređuje jednako oko osi.
+U tom slučaju pojavljuju se tzv. **produkti inercije**, koji “miješaju” osi među sobom:
+
+[
+I_{xy} = \int_V \rho , x y , dV
+]
+[
+I_{xz} = \int_V \rho , x z , dV
+]
+[
+I_{yz} = \int_V \rho , y z , dV
+]
+
+Intuitivno — oni govore **koliko gibanje oko jedne osi utječe na moment oko druge**.
+Ako su produkti inercije ≠ 0 → rotacije oko osi **nisu neovisne**.
+
+---
+
+## 🔹 3. Matrični prikaz: Tenzor inercije
+
+Sve to se skupi u **inercijski tenzor (matricu)**:
+
+[
+I =
+\begin{bmatrix}
+I_{xx} & -I_{xy} & -I_{xz} \
+-I_{yx} & I_{yy} & -I_{yz} \
+-I_{zx} & -I_{zy} & I_{zz}
+\end{bmatrix}
+]
+
+Ova matrica je **simetrična** (( I_{xy} = I_{yx} ), itd.)
+I koristi se u izrazu za **rotacijsku kinetičku energiju**:
+
+[
+T_{rot} = \frac{1}{2} \boldsymbol{\omega}^T I \boldsymbol{\omega}
+]
+
+---
+
+## 🔹 4. Glavne osi inercije
+
+Za svako tijelo možeš pronaći **glavne osi inercije** — to su osi oko kojih su produkti inercije nula.
+Tada je matrica ( I ) dijagonalna:
+
+[
+I_{principal} =
+\begin{bmatrix}
+I_1 & 0 & 0 \
+0 & I_2 & 0 \
+0 & 0 & I_3
+\end{bmatrix}
+]
+
+💡 To je kao da “poravnaš” tijelo s njegovim prirodnim smjerovima rotacije — tada su svi efekti “čisti”, bez miješanja osi.
+
+---
+
+## 🔹 5. U robotici
+
+Kod robota:
+
+* Svaki **link** ima svoj **tenzor inercije** izražen u koordinatnom sustavu tog linka.
+* Taj tenzor koristiš da izračunaš **inercijsku matricu** sustava ( M(q) ).
+* Ako je robot simetričan oko osi zgloba (npr. cilindrični link), produkti inercije su često **nula** — što jako pojednostavi dinamiku.
+
+---
+
+## 🔹 6. Intuitivni primjer
+
+Zamisli štap duljine ( L ), mase ( m ):
+
+* Ako ga rotiraš **oko centra**, moment inercije:
+  [
+  I = \frac{1}{12} m L^2
+  ]
+
+* Ako ga rotiraš **oko kraja** (npr. zglob), koristiš **Steinerov teorem**:
+  [
+  I = I_c + m d^2 = \frac{1}{12} m L^2 + m\left(\frac{L}{2}\right)^2 = \frac{1}{3} m L^2
+  ]
+
+Dakle vidiš, kad pomakneš os dalje od mase → moment inercije **naraste**.
+
+---
+
+## 🔹 7. Zaključak
+
+| Pojam                                      | Formula                         | Značenje                             |
+| ------------------------------------------ | ------------------------------- | ------------------------------------ |
+| ( I_{xx}, I_{yy}, I_{zz} )                 | ( \int \rho (y^2+z^2) dV ) itd. | otpor rotaciji oko glavnih osi       |
+| ( I_{xy}, I_{xz}, I_{yz} )                 | ( \int \rho xy,dV ), itd.       | spajaju osi (asimetrija mase)        |
+| ( I )                                      | matrica inercije                | opisuje sve rotacijske efekte tijela |
+| ( T_{rot} = \frac{1}{2}\omega^T I \omega ) |                                 | rotacijska kinetička energija        |
+
+---
+
+
+More se ugrubo aproksimirat djelove robota kao geometrijska tijela
+Tenzor inercije određuje se za svaki pojedini članak => matrice zenzora inercije
+
+---
+
+## 🔹 1. Što je Jacobianova matrica?
+
+Jacobian (označava se obično kao ( J(q) )) povezuje **brzine zglobova** robota sa **brzinama krajnjeg efektora** (npr. robotske ruke, alata, kamere…).
+
+U najkraćem obliku:
+
+[
+\boxed{\dot{x} = J(q) , \dot{q}}
+]
+
+gdje:
+
+* ( q = [q_1, q_2, ..., q_n]^T ) — poopćene koordinate (zglobni kutovi, translacije),
+* ( \dot{q} ) — brzine zglobova,
+* ( x ) — položaj (i orijentacija) krajnjeg efektora u radnom prostoru,
+* ( \dot{x} ) — brzina krajnjeg efektora (linearna + kutna).
+
+---
+
+## 🔹 2. Intuitivno značenje
+
+Jacobian je **derivacija položaja s obzirom na zglobne varijable**:
+
+[
+J(q) = \frac{\partial x}{\partial q}
+]
+
+Znači: koliko će se **krajnji efektor pomaknuti** ako malo promijeniš **kutove zglobova**.
+U suštini, Jacobian je "osjetljivost" položaja prema zglobovima.
+
+---
+
+## 🔹 3. Struktura Jacobiana
+
+Za **6D manipulator** (3 translacijske + 3 rotacijske komponente), Jacobian izgleda ovako:
+
+[
+J(q) =
+\begin{bmatrix}
+J_v(q) \
+J_\omega(q)
+\end{bmatrix}
+]
+
+gdje:
+
+* ( J_v ) — **linearni Jacobian** (veza između (\dot{q}) i linearne brzine),
+* ( J_\omega ) — **kutni Jacobian** (veza između (\dot{q}) i kutne brzine).
+
+---
+
+## 🔹 4. Formula za Jacobian po zglobovima
+
+Za zglobove tipa **rotacijski** i **translacijski**, formule su različite.
+
+### 👉 Rotacijski zglob:
+
+Ako je os rotacije ( \mathbf{z}_i ), a krajnji efektor u točki ( \mathbf{p}_e ):
+
+[
+\mathbf{J}_{v_i} = \mathbf{z}_i \times (\mathbf{p}_e - \mathbf{p}*i)
+]
+[
+\mathbf{J}*{\omega_i} = \mathbf{z}_i
+]
+
+Znači:
+
+* linearni dio dolazi od *križnog produkta osi rotacije i vektora do efektora*,
+* kutna brzina je jednostavno os rotacije.
+
+---
+
+### 👉 Translacijski zglob:
+
+Ako zglob ne rotira nego klizi (npr. prizmatički zglob):
+
+[
+\mathbf{J}_{v_i} = \mathbf{z}*i
+]
+[
+\mathbf{J}*{\omega_i} = 0
+]
+
+Jer prizmatički zglob dodaje samo translaciju, bez rotacije.
+
+---
+
+## 🔹 5. Matrični oblik Jacobiana
+
+Za manipulator s ( n ) zglobova:
+
+[
+J =
+\begin{bmatrix}
+\mathbf{J}*{v_1} & \mathbf{J}*{v_2} & \cdots & \mathbf{J}*{v_n} \
+\mathbf{J}*{\omega_1} & \mathbf{J}*{\omega_2} & \cdots & \mathbf{J}*{\omega_n}
+\end{bmatrix}
+]
+
+Dakle — svaka kolona Jacobiana opisuje *doprinos i-tog zgloba* brzini krajnjeg efektora.
+
+---
+
+## 🔹 6. Jacobian i sile
+
+E sad dolazi ljepota: Jacobian ne povezuje samo **brzine**, nego i **sile**!
+Pomoću transponirane forme:
+
+[
+\boxed{\tau = J^T(q) , F}
+]
+
+gdje:
+
+* ( F ) — sile i momenti na efektoru,
+* ( \tau ) — momente koje moraju proizvesti zglobni motori.
+
+Dakle: Jacobian radi kao “energetski most” između prostora sila (task space) i prostora zglobova (joint space).
+
+---
+
+## 🔹 7. Jacobian i singulariteti
+
+Kad ( \det(JJ^T) = 0 ), robot je u **singularnom položaju** → izgubi slobodu gibanja (npr. ne može se pomicati u nekom smjeru).
+To su vrlo važni položaji kod planiranja gibanja i kontrolera.
+
+---
+
+## 🔹 8. Jacobian u dinamici
+
+Kad pređeš u Lagrange-Euler jednadžbe, Jacobian se koristi za:
+
+* izražavanje brzina težišta linkova:
+  ( v_{c_i} = J_{v_i}(q)\dot{q} )
+* izražavanje kutnih brzina:
+  ( \omega_i = J_{\omega_i}(q)\dot{q} )
+* što vodi do inercijske matrice:
+  [
+  M(q) = \sum_i \left( m_i J_{v_i}^T J_{v_i} + J_{\omega_i}^T I_i J_{\omega_i} \right)
+  ]
+
+Boom 💥 — tu se Jacobian direktno uvezuje s masom i tenzorom inercije za cijeli manipulator.
+
+---
+
+## 🔹 9. Intuitivni primjer (2R planarni manipulator)
+
+Za ruku s dva rotacijska zgloba (kutovi ( q_1, q_2 ), duljine ( l_1, l_2 )):
+
+[
+\begin{aligned}
+x &= l_1 \cos q_1 + l_2 \cos(q_1 + q_2) \
+y &= l_1 \sin q_1 + l_2 \sin(q_1 + q_2)
+\end{aligned}
+]
+
+Jacobian:
+
+[
+J(q) =
+\begin{bmatrix}
+-l_1 \sin q_1 - l_2 \sin(q_1 + q_2) & -l_2 \sin(q_1 + q_2) \
+l_1 \cos q_1 + l_2 \cos(q_1 + q_2) &  l_2 \cos(q_1 + q_2)
+\end{bmatrix}
+]
+
+i on povezuje:
+[
+\begin{bmatrix} \dot{x} \ \dot{y} \end{bmatrix} = J(q) \begin{bmatrix} \dot{q}_1 \ \dot{q}_2 \end{bmatrix}
+]
+
+---
+
+## 🔹 10. Ukratko
+
+| Simbol                                   | Opis                                   |
+| ---------------------------------------- | -------------------------------------- |
+| ( J(q) = \frac{\partial x}{\partial q} ) | Jacobian — veza položaj–zglob          |
+| ( \dot{x} = J(q)\dot{q} )                | veza brzine efektora–zglobova          |
+| ( \tau = J^T(q)F )                       | veza momenta–sila                      |
+| ( \det(JJ^T)=0 )                         | singularitet (gubitak slobode gibanja) |
+| ( J_v, J_\omega )                        | linearni i kutni Jacobian              |
+
+---
+
+---
+
+### 🔧 Opća forma dinamičke jednadžbe manipulatora
+
+Za manipulator s ( n ) stupnjeva slobode, dinamički model se piše ovako:
+
+[
+M(q)\ddot{q} + C(q, \dot{q})\dot{q} + G(q) + F(\dot{q}) = \tau
+]
+
+gdje je:
+
+| Član                     | Značenje                             | Tip sile/momenta                         |
+| ------------------------ | ------------------------------------ | ---------------------------------------- |
+| ( M(q)\ddot{q} )         | **Inercijalne sile i momenti**       | otpor promjeni gibanja (masa i inercija) |
+| ( C(q, \dot{q})\dot{q} ) | **Coriolisove i centrifugalne sile** | efekti gibanja među člancima             |
+| ( G(q) )                 | **Utjecaj gravitacije**              | težina manipulatora                      |
+| ( F(\dot{q}) )           | **Trenje u zglobovima**              | viskozno i statičko trenje               |
+| ( \tau )                 | **Moment aktuatora**                 | ono što motori stvarno daju              |
+
+---
+
+### ⚙️ 1️⃣ Inercijalne sile i momenti → ( M(q)\ddot{q} )
+
+* ( M(q) ) je **matrica inercije** (simetrična i pozitivno definitna).
+* Ona opisuje kako raspodjela mase u robotu utječe na njegovu otpornost promjeni gibanja.
+* Ovisi o konfiguraciji ( q ) jer se raspored članaka mijenja.
+
+💡 **Intuitivno:** ako ispružiš ruku, teže ju je okrenuti nego kad ju saviješ — jer se inercija promijenila!
+
+---
+
+### 🌀 2️⃣ Coriolisove i centrifugalne sile → ( C(q, \dot{q})\dot{q} )
+
+* Pojavljuju se kad se **više članaka giba istovremeno**.
+* Coriolisov efekt = međusobna interakcija kutnih brzina.
+* Centrifugalni efekt = “odbacivanje” mase zbog rotacije.
+
+💡 **Efekt u praksi:** kad robot brzo miče jednim zglobom, to može stvoriti dodatne momente na drugim zglobovima — i to moraš kompenzirati!
+
+---
+
+### 🌍 3️⃣ Utjecaj sile teže → ( G(q) )
+
+* Ovisi o **položaju manipulatora** i centru mase svakog članka.
+* Predstavlja moment potreban za “držanje” manipulatora u položaju protiv gravitacije.
+
+[
+G(q) = \frac{\partial V(q)}{\partial q}
+]
+gdje je ( V(q) ) potencijalna energija od gravitacije.
+
+💡 **Primjer:** ako manipulator stoji horizontalno, motor mora davati moment da “drži” članke gore protiv težine.
+
+---
+
+### 🧱 4️⃣ Trenje → ( F(\dot{q}) )
+
+* Modelira **mehaničke gubitke** u zglobovima.
+* Može uključivati:
+
+  * **Viskozno trenje:** ( F_v \dot{q} )
+  * **Coulombovo trenje:** ( F_c , \text{sign}(\dot{q}) )
+  * Ponekad i **statičko trenje** (prag prije početka gibanja)
+
+💡 **Efekt:** bez trenja bi zglobovi “plesali” beskonačno — trenje ih stabilizira, ali i troši energiju.
+
+---
+
+### ⚡ 5️⃣ Moment aktuatora → ( \tau )
+
+* Ovo je **ono što tvoji motori stvarno proizvode**.
+* U jednadžbi, to je *ono što mora nadvladati sve ostalo*:
+
+[
+\tau = M(q)\ddot{q} + C(q, \dot{q})\dot{q} + G(q) + F(\dot{q})
+]
+
+💡 **Interpretacija:** moment aktuatora mora savladati inerciju, međusobne dinamičke interakcije, gravitaciju i trenje — sve u isto vrijeme.
+
+---
+
+
