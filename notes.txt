@@ -2608,3 +2608,12 @@ Zato ti robot mora biti *dinamički otkompenziran* da bi imao savršeno sinkrono
 
 **Da!** Metoda istovremenog dolaska u cilj je poveziva s kontrolom putanje i dinamičkim modeliranjem koje smo ranije prolazili. To je dio *trajectory planninga* i *time parametrizationa* u robotici.
 
+
+Planiranje trajektorije kontinuirano
+Ne zanimaju nas toliko zglobovi koliko samo vrh alata
+
+Interpolirano gibanje
+- krajnja i početka točka + spojne točke (početak, kraj i međutočke)
+Interpolacija između spojnih točaka kako bi se dobila glatka putanja s bar 2 neprekinute derivacije (izbjegavamo beskonačna ubrzanja/trzaje)
+w(t) = At^3 + Bt^2 + Ct + D, 0 <t<T
+T = vrijeme potrebno za prijelaz putanje
