@@ -2428,4 +2428,183 @@ gdje je ( V(q) ) potencijalna energija od gravitacije.
 
 ---
 
+Planiranje trajektorije
+Putanja - krivulja u prostoru konfiguracije alata (točke u prostoru)
+Ako je prolazak kroz točke putanje vremenski zadan, onda govorimo o trajektoriji (prostor + vrijeme)
+
+2 osnovne metode planiranja trajektorije:
+Od točke do točke (point to point, PTP)
+Kontinuirano po putanju (continous path, CP)
+
+Raspodjela brzine
+Postoje ograničenja u max brzini i akceleraciji koju aktuator može postići
+cilj: zadavanje najbržeg prolaska putanje => 3 perioda planiranja trajektorije
+
+0-t1 => period maksimalnog ubrzanja (jednoliko ubrzano gibanje) => brzina raste linearno s vremenom (ubrzanje je pozitivno)
+t1-t2 => period maksimalne brzine (jednoliko gibanje), ubrzanje je 0, a brzina je konstantna
+t1-t2 do tu (u je broj točaka) => period maksimalnog negativnog ubrzanja (usporavanja; jednoliko usporeno gibanje), brzina pada linearno s vremenom do zaustavljanja
+
+Gibanje robota od točke do točke
+Upravljanje u zglobovskom prostoru
+npr. spot welding, bušenje, pick and place, ljepljenje etiketa
+Princip rada:
+pomak u zadanu poziciju
+zaustavljanje u zadanoj poziciji
+obavljanje zadataka (zavarivanje/hvatanje/itd)
+odlazak u sljedeću poziciju
+
+Kod PTP (točka do točke) brzine i ubrzanje su nevažna...bitna je samo zadana pozicija; koristimo putanju s najmanjim vremenom
+
+2 načina upravljanja:
+svaka os se giba svojom maksimalnom brzinom
+sve osi robota istovremeno završavaju gibanje => os koja ima najdulji put giba se maksimalnom brzinom, a ostale osi su usporene za omjer puta u odnosu na najdulju os (brži zglobovi se gibaju sporije da uspijevaju pratit sporije)
+
+Planiranje trajektorije metodom od točke do točke
+Proračun profila brzina
+Sinkronizacija gibanja po osima
+Izračun pozicije zglobova
+Ponavljanje za sljedeću zadanu poziciju
+
+Koraci: 
+U računalu: kinematska pretvorba unatrag (odredimo točke za doći do cilja), izračun položaja točaka u koordinatama zglobova, planiranje trajektorije s obzirom na ograničenja
+Onda: upravljački uređaj svakog zgloba kontrolira pogonske djelove robota i manipulatora unutar robota + položaj se prati senzorima
+
+
+---
+
+
+## **1️⃣ Izračunaj osnovna vremena za svaku os**
+
+* Za svaku os izračunaš:
+
+  * **T1** → vrijeme ubrzavanja
+  * **TU** → ukupno vrijeme kretanja te osi
+* To radiš prema zadanoj max brzini i max ubrzanju.
+
+---
+
+## **2️⃣ Odaberi referentnu os (onu koja diktira tempo svima ostalima)**
+
+* Normalno: **os s najvećim TU** postaje *referentna*.
+* Ali!
+  Ako **os s najvećim T1** nije ista kao ona s najvećim TU →
+  onda:
+
+  * za os s najvećim TU izračunaš:
+    **T = TU - 2·T1**
+  * tom vremenu dodaš **2·T1_ref** (od referentne osi po ubrzanju)
+  * i tako dobiješ *novo ukupno referentno vrijeme* koje svi moraju pratiti.
+
+*(Poanta: sve osi moraju završiti **u isto vrijeme**, pa im tempom vlada ona koja najdulje traje.)*
+
+---
+
+## **3️⃣ Izračunaj potrebne brzine drugih osi**
+
+* U jednadžbu za ukupno vrijeme ubacuješ *referentno ukupno vrijeme*.
+* Time izvučeš **koju brzinu svaka druga os treba koristiti** da bi stigla u isto vrijeme kao referentna.
+
+---
+
+## **4️⃣ Izjednači vremena ubrzavanja**
+
+* Sve osi moraju imati **isto vrijeme ubrzavanja T1** kao referentna os.
+* Ako neka os ne može to postići s originalnim a_max ili v_max →
+  jednostavno joj preračunaš ubrzanje tako da joj T1 postane **identičan** referentnom.
+
+*(Dakle: svi dišu istim ritmom.)*
+
+---
+
+## **5️⃣ Postavi dobivene brzine i ubrzanja, i provjeri kretanje preko enkodera**
+
+* Svakoj osi zadaš:
+
+  * brzinu koju si izračunao u koraku 3
+  * ubrzanje iz koraka 4
+* Na kraju provjeriš:
+
+  * je li stvarni broj enkoderskih impulsa odgovarao očekivanom kutu/položaju
+
+*(Što ti je zapravo “closed-loop” provjera da sve osi stvarno jesu došle gdje trebaju.)*
+
+---
+---
+
+# 📌 Što znači “istovremeni dolazak u cilj” u robotici?
+
+U kontekstu **upravljanja manipulatorima**, to obično znači:
+
+* svaki zglob ima *svoju* dinamiku (inercija, trenje, gravitacija…),
+* ali svejedno želiš da **svi spojevi** manipulatora
+  **dovrše svoju putanju u ISTO vrijeme**
+  (npr. 2 sekunde od starta).
+
+To se radi radi:
+
+* glatke i sinkronizirane putanje,
+* izbjegavanja mehaničkih trzaja,
+* sigurnosti,
+* točnosti krajnje efemeride (TCP-a).
+
+---
+
+# 📌 Kako se to radi?
+
+Koristi se nešto poput:
+
+### **1) Pohranjene (offline) putanje**
+
+Za svaki zglob se generira profil brzine/akceleracije tako da svi završe u isto vrijeme.
+Najčešće:
+
+* trapezoidni profil,
+* S-curve profil,
+* polinomi 5. i 7. reda.
+
+### **2) Online prilagođavanje vremena**
+
+Tijekom izvršavanja, kontroler prilagođava brzine pojedinih zglobova tako da nitko ne “pobjegne” naprijed.
+
+### **3) Dinamičko planiranje – Lagrange/Euler**
+
+Kad uključiš dinamiku (koje smo ranije spominjali), onda upravljanje ima zadatak kompenzirati:
+
+* inercijske sile,
+* Coriolis + centrifugalne sile,
+* gravitaciju,
+* trenje.
+
+Da bi *unatoč* svemu tome stigao u cilj točno u isto vrijeme.
+
+---
+
+# 📌 Kako se to povezuje s onime što smo pričali?
+
+Kad smo pisali:
+
+* Lagrangeove jednadžbe
+* potencijalnu energiju
+* Jacobian matrice
+* torzijske sile
+* Coriolis članove
+* aktuatorske momente
+
+👉 *upravo svi ti dijelovi ulaze u formulu za kontrolu gibanja*
+kako bi svaki zglob dobio “pravu” snagu u “pravo” vrijeme.
+
+Bez toga, zglobovi bi stizali u cilj u različita vremena jer ima:
+
+* različite mase,
+* različite duljine,
+* različite momente inercije,
+* različita trenja.
+
+Zato ti robot mora biti *dinamički otkompenziran* da bi imao savršeno sinkrono kretanje.
+
+---
+
+# 📌 Ukratko
+
+**Da!** Metoda istovremenog dolaska u cilj je poveziva s kontrolom putanje i dinamičkim modeliranjem koje smo ranije prolazili. To je dio *trajectory planninga* i *time parametrizationa* u robotici.
 
