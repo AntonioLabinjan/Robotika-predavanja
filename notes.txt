@@ -2617,3 +2617,84 @@ Interpolirano gibanje
 Interpolacija između spojnih točaka kako bi se dobila glatka putanja s bar 2 neprekinute derivacije (izbjegavamo beskonačna ubrzanja/trzaje)
 w(t) = At^3 + Bt^2 + Ct + D, 0 <t<T
 T = vrijeme potrebno za prijelaz putanje
+
+
+Mobilna robotika
+
+više-robotski sustavi autonomnog ponašanja
+distributivna inteligencija
+
+1) first gen roboti
+Automatski ponavljaju zadane pokrete
+Najbrojniji u tvornicama i pogonima
+Upravljački sustav prilagođen ručnim operacijama
+use-case: prešanje, zavarivanje
+
+2) second gen roboti
+Mogućnost snalaženja u nepredvidivim prostorima => senzori
+Od senzora dovibaju potrebne info
+Orijentiranje i postupci u radnom prostoru su programirani
+use-case: pokretna traka, montaža, bojanje
+
+3) third gen roboti
+Korištenje brojnih senzora (neki su čak redundantni da dobijemo kvalietniju sliku) i AI
+Opremljeni računalima i specijaliziranim programima
+Mogućnost prepoznavanje okoline, analite učinaka i učenja na greškama
+Samostalno i inteligentno mijenjaju svoj način rada kako bi se prilagodili uvjetima rada i okolini te na taj način poboljšati učinak
+
+DISTRIBUIRANA INTELIGENCIJA => OVO JE LUDOOOOOO
+Cool article: https://pmc.ncbi.nlm.nih.gov/articles/PMC7766450/pdf/entropy-22-01437.pdf
+Sustavi entiteta koji zajedno surađuju u svrhu planiranja, rješavanja problema, shvaćanju ideja i jezika te učenja
+Entiteti u ovom slučaju mogu biti definirani kao bilo koji tip inteligentnog procesa ili sustava uključujući robote, smart senzore i sl.
+Cilj: stvoriti sustave softverskih agenata, robota, senzora i računalnih sustava koji mogu raditi zajedno s podjednakom razinom učinkovitosti i stručnosti ko ljudi
+
+Zašto koristiti DI?
+Visoka učinkovitost kod paralelizma
+Svojstveno podijeljeni zadaci
+Povećana robusnost kroz redundanciju
+Jednostavniji dizajn robota
+
+
+                 |------ DISTRIBUTED PROBLEM SOLVING
+DISTRIBUTED AI -- 
+                 |------ MULTI-AGENT SYSTEMS
+
+VIše-robotski sustavi
+1980-ih
+Koordinirani zadaci velike složenosti
+
+2 kategorije:
+Kolektivni sustavi roja
+Namjerno kooperativni sustavi
+
+Kolektivni sustavi roja (CSS)
+Sustavi u kojima svaki robot izvršava svoj zadatak s minimalnim ili nikakvim znanjem o tome što rade drugi roboti unutar tog roja
+
+Namjerno kooperativni sustavi (ICS)
+Rade na principu namjernog kooperativnog sustava; imaju znanje o prisutnosti drugih robota u svojoj okolini i zajedno rade na rješavanju određenog zadatka ovisno o stanju, trenutnoj radnji i mogućnostima ostalih članova skupine
+
+Jako kooperativni sustavi
+Slabo kooperativni sustavi
+
+Mobilni roboti => kopnena, zračna, podvodna vozila
+
+Requirements:
+Autonomno gibanje u nepoznatom prostoru
+Obavljanje zadataka različite složenosti
+Interakcija s drugim robotima i ljudima
+Samostalno učenje i zaključivanje
+
+
+Podjela robota s obzirom na vrstu lokomocije (kretanja)
+
+Roboti s kotačima (wheeled)
+Roboti s nogama (legged)
+Gusjeničari (tracked)
+Zmijoliki (serpentine)
+
+Ima još:
+Podjela robota s obzirom na vrstu terena koju savladavaju (unutarnji ili vanjski prostori)
+Fleksibilnost tijela robota (jednotjelesni i višetjelesni; s elastičnim ili krutim tijelom)
+Oblik tijela robota (roboti s jednostavnom ili složenom strukturom; u obliku insekta i sl.)
+Primjenu (edukacijski, istraživački, uslužni)
+Način nastanka (modernizirana stara vozila, nova vozila)
