@@ -2698,3 +2698,29 @@ Fleksibilnost tijela robota (jednotjelesni i višetjelesni; s elastičnim ili kr
 Oblik tijela robota (roboti s jednostavnom ili složenom strukturom; u obliku insekta i sl.)
 Primjenu (edukacijski, istraživački, uslužni)
 Način nastanka (modernizirana stara vozila, nova vozila)
+
+Zašto koristiti multi-robotske sustave
+Robusnost => ako 1 robot ne uspije, ostali ga zamjenjuju
+Skalabilnost => dodavanje novih robota ukoliko zadatak/problem koji se pokušava riješiti postane veći
+Performanse => više robota će u kraćem vremenu izvršiti zadatak
+
+Izazovi:
+Upravljanje čitavim sustavom
+Nedostatak centraliziranog upravljanja
+Veći zahtjevi komunikacije
+Povećana nesigurnost sustava
+
+Izvedbe i rješenja => ovise o zahtjevima zadataka koji je potrebno riješiti, te o sposobnosti samog robota
+
+Podjela više-robotskih sustava
+Robotika roja (swarm) => npr. dron patrolira po fieldu; vidi smeće, javi drugemu dronu da dojde počistit, a on nastavi patrolirat. Jedan robot sam more nešto jednostavno, a kad ih uparimo, moru kompleksne stvari
+Rekonfigurabilni mobilni roboti => mobilne jednice koje neovisno promatraju prostor, i onda se ovisno o zadataku skupljaju i nešto delaju (cjeline su jače nego pojedinačni robot)
+
+Rekonfigurabilnost => mogu se spajati na više različitih načina
+
+Arhitektura mobilnih robotskih sustava
+
+1) centralzirirana struktura => 1 robot koordinira cijelom skupinom robota iz 1 točke (svaki robot ima isti program na sebi i svaki od njih može biti upravljački)
+2) hijererhijska struktura => izvediva za neke slučajeve; svaki robot nadgleda radnje relativno male skupine robota, a svaki od tih robota nadgleda drugu skupinu robota
+3) decentralizirana struktura => najčešća u višerobotskim sustavima; roboti izvršavaju radnje samo na temelju lokalnog znanja o svojoj situaciji 
+4) hibridna struktura => lokalno upravljanje + pristupi upravljanja na višem nivou => robustnost i mogućnost utjecaja na robotske radnje cijelog sustava kroz: globane ciljeve, planiranje i upravljanje
