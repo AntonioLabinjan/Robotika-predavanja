@@ -2724,3 +2724,184 @@ Arhitektura mobilnih robotskih sustava
 2) hijererhijska struktura => izvediva za neke slučajeve; svaki robot nadgleda radnje relativno male skupine robota, a svaki od tih robota nadgleda drugu skupinu robota
 3) decentralizirana struktura => najčešća u višerobotskim sustavima; roboti izvršavaju radnje samo na temelju lokalnog znanja o svojoj situaciji 
 4) hibridna struktura => lokalno upravljanje + pristupi upravljanja na višem nivou => robustnost i mogućnost utjecaja na robotske radnje cijelog sustava kroz: globane ciljeve, planiranje i upravljanje
+
+Teorija mapiranja i istraživanja
+
+SLAM => simultaneous localization and mapping
+
+4 fundamentalne navigacijske radnje:
+
+Senzori => LOKALIZACIJA => pozicija i orijentacija robota
+Senzori => GRADNJA MAPE => mapa
+
+Pozicija i orijentacija + mapa = Plan
+
+Plan => PLANIRANJE PUTANJE => cilj
+Plan => UPRAVLJANJE KRETANJEM => pogoni
+
+Gradnja mape => konstruiramo mapu na temelju mjerenja i očitavanja senzora s različitih lokacija
+Lokalizacija => dobivanje info o stvarnoj lokaciji na temelju očitavanja senzora i trenutne mape
+Planiranje putanje => proces generiranja izvodive i sigurne trajektorije temeljene na trenutnoj mapi (od trenutne lkacije do ciljne pozicije)
+Upravljanje kretanjem => generiranje upravljačkih signala na pogone mobilnog tovota kojim se ostvaruje željeno kretanje na temelju korištenog postupka planiranja kretanja
+
+Gradnja mape prostora
+Opisivanje prostora (svojstva i lokacije objekata u tom prostoru)
+Mape u robotici dijele se na:
+- metričke
+- topološke
+
+
+**Metrika (metric maps)**
+Ovdje robot ima informacije o *točnim udaljenostima* i *geometriji prostora*.
+– Svaka točka u prostoru ima jasnu poziciju (npr. u metrima).
+– Mapa prikazuje oblik okoline — zidovi, prepreke, hodnici, sve s realnim dimenzijama.
+– Tipični primjeri:
+• **Occupancy grid** – raster gdje svaka ćelija kaže je li zauzeta, slobodna ili nepoznata.
+• **Point cloud** – skup 3D točaka dobiven npr. LiDAR-om ili stereom.
+• **OctoMap** – hijerarhijska 3D reprezentacija prostora.
+
+Prednosti: precizno planiranje putanje, optimalni (najkraći) putevi.
+Mane: memorijski teže, zahtjevno za izgraditi i održavati.
+
+**Topologija (topological maps)**
+Ne zanima ih točna geometrija, nego *povezanost prostora*.
+– Robot mapira “građevu” prostora kao graf: čvorovi = mjesta, bridovi = mogući prijelazi.
+– Udaljenost nije bitna; bitno je samo da možeš iz A u B.
+– Primjeri:
+• Graf prostorija u kući: dnevni → kuhinja → hodnik → soba.
+• Mape koje se baziraju na landmarkovima i relacijama (“iza ugla”, “pored vrata”).
+
+Prednosti: super učinkovito u memoriji, brzo pretraživanje, otpornije na šum.
+Mane: manje precizno, ne možeš raditi fino planiranje pokreta.
+
+**Gdje se koriste u praksi?**
+– Metrika: autonomna vožnja, industrijski roboti, dronovi → trebaš centimetarsku preciznost.
+– Topologija: indoor navigacija, servisni roboti, high-level planiranje → gdje je bitno samo kako su mjesta povezana.
+
+**Kombinacija (hybrid maps)**
+Najbolji sustavi spajaju oba pristupa: lokalno metrički za precizno kretanje, globalno topološki za efikasno navigiranje velikim prostorima.
+Primjer: robot ima topološki graf zgrada, a u svakom čvoru drži malu lokalnu occupancy mapu.
+
+
+Lokalizacija
+Procjena stanja robota i okoline u kojoj se on nalazi pomoću dostupnih senzora
+"stanje robota" => položaj, orijentacija, brzina
+
+Vrste => odometrijska lokalizacija, lokalizacija na temelju orijentira, triangulacija
+
+
+**1. Odometrijska lokalizacija (odometry-based localization)**
+Robot procjenjuje svoju poziciju **integracijom vlastitog kretanja**.
+Izvori podataka: enkoderi na kotačima, IMU, motori, aktuatori.
+
+Kako radi:
+– Robot zna koliko se svaki kotač okrenuo → iz toga računa koliko se pomaknuo.
+– Integrira te promjene kroz vrijeme i dobije trenutnu poziciju u prostoru.
+
+Prednosti:
+– Brzo i jednostavno.
+– Ne treba nikakvu mapu.
+– Radi u potpunoj tami, prašini, kaosu.
+
+Mane:
+– Greške se **akumuliraju** (drift).
+– Što više se kreće, to je lokacija manje precizna.
+
+Koristi se za:
+– Kratkoročne estimacije.
+– Predikciju u SLAM-u (motion model u Kalman/Particle filterima).
+
+
+
+**2. Lokalizacija na temelju orijentira (landmark-based localization)**
+Robot prepoznaje **prepoznatljive objekte** ili vizualne karakteristike u okolini i pomoću njih određuje svoj položaj.
+
+Orijentiri mogu biti:
+– Vizualni markeri (QR kodovi, AprilTags)
+– Prirodne značajke (CORNER-i, ORB featurei, SIFT/SURF točke)
+– Karakteristični objekti u prostoru (vrata, stupovi, zidovi)
+
+Kako radi:
+– Robot promatra okolinu senzorima (kamera, LiDAR).
+– Detekcija landmarkova.
+– S obzirom na to gdje se landmarkovi nalaze na mapi → izračunava vlastitu poziciju.
+
+Prednosti:
+– Mnogo preciznije od odometrije.
+– Greške se ne akumuliraju – robot se “resetira” kad vidi landmark.
+– Radi super u SLAM sustavima.
+
+Mane:
+– Treba jasne orijentire.
+– Ako ih ne vidi → pada preciznost.
+
+Koristi se u:
+– Vizu alnoj lokalizaciji (VSLAM)
+– Indoor navigaciji
+– Robotskim manipulatorima
+
+
+
+**3. Triangulacija (trilateration/triangulation-based localization)**
+Određivanje pozicije robota na temelju **udaljenosti** ili **kuteva** prema poznatim fiksnim točkama u prostoru.
+
+Postoje dvije varijante:
+**Triangulation (kutovi)** – robot mjeri kut pod kojim vidi dvije ili više referentnih točaka.
+**Trilateration (udaljenosti)** – robot mjeri svoju udaljenost od nekoliko poznatih točaka.
+
+Primjeri:
+– GPS je trilateracija (udaljenosti od satelita).
+– Indoor pozicioniranje s IR beaconima.
+– Robotski sustavi s 3 fiksna odašiljača + ultrazvučni prijemnici.
+
+Kako radi:
+– Ako znaš kut/do koje je udaljenosti od tri poznate točke → jednoznačno dobiješ poziciju.
+
+Prednosti:
+– Super precizno ako su mjerenja kvalitetna.
+– Ne zahtijeva mapu prostora.
+– Dostupno i u okruženjima gdje vizualni landmarkovi nisu dobri.
+
+Mane:
+– Treba fiksnu infrastrukturu (beaconi/sateliti).
+– Greške se brzo propagiraju ako je signal slab ili triangulacija “plitka”.
+
+Koristi se u:
+– Dronovima
+– Mobilnim robotima u zatvorenom
+– GPS sustavima
+– Visoko preciznom tracking sustavima
+
+
+Planiranje kretanja
+Cilj je da robot postiže svoje ciljeve usprkos ograničenjima kretanja (unutarnja i vanjska)
+
+Vanjska: fizičke prepreke u radnoj okolini; jedina stvarna ograničenja koja se razmatraju u planiranju kretanja
+Unutarnja: prirodna mehanička ograničenja (npr. neholonomna ograničenja koja onemogućavaju bočno kretanje mobilnog robota) i senzorksa ograničenja (npr.blokiranje pogleda kamera robota od strane prepreka)
+
+Ograničenja koja se odnose na brzinu, akceleraciju itd. zovu se neholonomna
+
+2 fundamentalne paradigme za planiranje putanje s izbjegavanjem prepreka:
+Globalni pristup - generira putanju off-line korištenjem poznatih informacija o okolini (IMAMO MAPU)
+Lokalni pristup - obavlja se korištenjem malog broja poznatih informacija o prostoru (NEMAMO MAPU
+
+Roadmap algoritmi planiranja => mapa puta predstavlja dekompoziciju konfiguracijskog prostora mobilnog robota na temelju specificiranja geometrije prepreka
+
+Graf vidljivih vrhova - 2d konfiguracijski prostor s poligonalnim preprekama
+1) nacrtamo spoojne linije od početne do ciljne točke do svih vidljivih vrhova i do uglova prostora
+2) nacrtaju se spojne linije između svhih vidljivih vrhova svih prepreka
+3) linije uzduž rubova prepreka su također spojne linije
+4) ponavljati korak 2 i 3 sve dok se svi vrhovi ne spoje
+
+Vornoi graf
+Pokušava maksimizirati udaljenost od svih mogućih prepreka
+
+Metoda potencijalnih polja
+Imamo ciljne točke i točke prepreka
+Ciljne točke nas privlače, točke prepreka odbijaju
+
+Upravljanje kretanjem
+Odvija se u odvojenim jedinicama/modulima =>svaki od njih šalje svoje rezultate (opažanja)
+
+Percepcija => plan => djelovanje
+Percepcija => model => plan => djelovanje
