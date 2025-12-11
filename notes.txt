@@ -2905,3 +2905,364 @@ Odvija se u odvojenim jedinicama/modulima =>svaki od njih šalje svoje rezultate
 
 Percepcija => plan => djelovanje
 Percepcija => model => plan => djelovanje
+
+Senzori
+Svojstva:
+1) Brzina rada (odziva)
+2) Pogreška mjerenja
+3) Cijena senzora
+4) Robusnost senzora (koliko je izdržljiv)
+5) Računarski zahtjevi (koliko snage mu treba da bi procesirao)
+6) Napajanje, masa i dimenzije
+
+Podjela senzora:
+1) Vizualni
+- koriste svjetlost reflektiranu od objekata u okolini na temelju koje se obavlja postupak zaključavanja o strukturi objekta
+
+2) Nevizualni
+- koriste različite audio, inercijalne i druge modalitete za opažanje okoline
+
+Podjela senzora #2:
+1) Propriocepcijski
+- detektiraju status samog robota (mjere vrijednosti unutarnjih parametara mobilnog robota (npr. brzina motora, napon baterije, opterećenje robota))
+2) Percepcijski
+- detektiraju status okoline (prikupljaju status okoline; prikupljaju informacije iz koruženja mobilnog robota (udaljenost do prepreke, intenzitet svjetlosti, amplituda zvuka itd.)
+3) Višesenzorska fuzija informacija
+- povećava se kakvoća i robusnost navigacija robota
+
+Podjela senzora #3:
+Ovisno o izvoru zračenja:
+1) Aktivni
+- emitiraju energiju u okolinu i nakon toga registriraju reakciju okoline (enkoderi, ultrazvučni senzori i sl.)
+
+2) Pasivni
+- primaju energiju iz okoline i na temelju nje obavljaju mjerenja (temperaturne sonde, mikrofoni, CMOS, CCD kamere)
+
+Propriocepcijski senzori za estimaciju gibanja mobilnog robota
+- odometrijski senzori
+Omogućuju izračunavanje položaja mobilnog robota (optički enkoderi, akcelerometri, senzori na doppler efektu)
+- orijentacijski senzori
+Određuju orijentaciju mobilnog tobota u odnosu na magnetsku ili geografsku os Zemlje (žiroskopi, kompasi, žirokompasi)
+
+
+Optički enkoderi
+1) Inkrementalni
+2) Apsolutni
+
+
+---
+
+# 🔥 **Optički enkoderi – inkrementalni vs apsolutni**
+
+Optički enkoderi su uređaji koji pretvaraju mehaničko gibanje (kutno ili linearno) u električni signal.
+Najčešće se koriste u robotici, CNC-u, motorima, autonomnim sustavima… sve stvari koje tebe zanimaju 100%.
+
+Postoje **dvije glavne vrste**:
+
+---
+
+## 🟦 **1. Inkrementalni optički enkoder**
+
+Radi *relativno*, ne apsolutno.
+
+### **Kako radi:**
+
+– Ima disk s prozirnim i neprozirnim crtama
+– Dok se disk vrti, senzor “broji” prelaze između tamnog i svijetlog
+– Generira **pulseve** (A kanal, B kanal)
+– Brojiš pulseve → znaš koliko si se pomaknuo
+
+### **Ali!**
+
+– Ako nestane struje → gubiš informaciju o apsolutnoj poziciji
+– Nakon restarta moraš napraviti **homing**
+
+### **Prednosti:**
+
+* Jeftin
+* Brz
+* Visoka rezolucija u praksi
+* Idealan za motore (servo/BLDC), 3D printere, robote…
+
+### **Nedostaci:**
+
+* Ne zna gdje je dok se ne inicijalizira
+* Ako izgubi pulseve (smiješak vibracije, smetnje) → ode pozicija
+
+---
+
+## 🟩 **2. Apsolutni optički enkoder**
+
+On zna **točnu poziciju** odmah, bez hominga.
+
+### **Kako radi:**
+
+– Disk ima **više prstenova** s uzorkom (npr. Gray kod)
+– Svaki prsten = jedan bit
+– U svakom položaju diska dobiješ jedinstveni binarni uzorak
+→ to znači da je svaki kutni položaj kodiran u apsolutnu vrijednost
+
+### **Prednosti:**
+
+* Pamti poziciju čak i nakon gašenja
+* Nema hominga – odmah zna gdje je
+* Idealno za robotiku visoke preciznosti, industriju, droooooonove s gimbalom…
+
+### **Nedostaci:**
+
+* Skuplji
+* Malo kompliciraniji za očitanje
+
+---
+
+# 🥊 **Ukratko usporedba:**
+
+| Karakteristika                | Inkrementalni            | Apsolutni                             |
+| ----------------------------- | ------------------------ | ------------------------------------- |
+| Pamti poziciju nakon gašenja? | ❌ Ne                     | ✔️ Da                                 |
+| Potreban homing?              | ✔️ Da                    | ❌ Ne                                  |
+| Cijena                        | Niska                    | Veća                                  |
+| Upotreba                      | Motori, 3D printeri, CNC | Robotika, precizni sustavi, servo osi |
+| Output                        | Pulsevi (A/B)            | Digitalni kod (npr. Gray)             |
+
+---
+
+Žiroskopi
+Mehanički 
+Optički
+
+Ajmooo, ovo je baš dobra tema – a i brutalno korisna ako ikad radiš išta s dronovima, robotima, IMU-ovima… Krenimo nabrijano i jasno, da ti sjedne ko zacementirano!
+
+---
+
+# 🔥 **Mehanički vs Optički žiroskopi – što, kako i zašto?**
+
+Žiroskop mjeri **kutnu brzinu** – koliko se sustav vrti oko neke osi.
+Ali *kako* to radi, ovisi o vrsti žiroskopa.
+
+Imamo dvije velike familije:
+
+---
+
+# 🟦 **1. Mehanički žiroskopi**
+
+To su **klasični žiroskopi** – bazirani na fizici rotirajuće mase.
+
+### **Kako rade?**
+
+– U njima fizički vrtiš neki rotor (kotačić) na jako visokim brzinama
+– Zbog **momentuma** rotor "želi" zadržati smjer
+– Kada zakreneš okvir, osjeti se precesija → ona se mjeri
+
+### **Karakteristike:**
+
+* Masivni
+* Sporiji
+* Potreban motor (rotor treba vrtit!)
+* Troše više energije
+* Osjetljivi na vibracije i trenje
+* JAKO pouzdani i stabilni (imali su se vremena dokazat)
+
+### **Prednosti:**
+
+✔ Stabilni
+✔ Jasni fizikalni principi
+✔ Dobri za velike platforme (avioni, brodovi)
+
+### **Nedostaci:**
+
+❌ Veliki
+❌ Teški
+❌ Spori
+❌ Mehanički dijelovi se troše
+❌ Nije za moderne male uređaje
+
+---
+
+# 🟩 **2. Optički žiroskopi**
+
+Ovo je potpuno druga liga – ono high-tech stuff.
+
+Umjesto rotora, koriste **svjetlost** i interferenciju.
+
+Postoje 2 tipa:
+
+### 🔸 **FOG (Fiber Optic Gyroscope)**
+
+– Laser se šalje kroz optičko vlakno u dva smjera
+– Ako se sustav vrti → jedna zraka putuje mrvicu brže, druga sporije
+– Razlika faze = kutna brzina
+→ fenomen zvan **Sagnac efekt**
+
+### 🔸 **RLG (Ring Laser Gyroscope)**
+
+– Umjesto vlakna, imaš optički “prsten”
+– Laser kruži unutra u dva smjera
+– Vrtnja mijenja frekvenciju (beat frequency)
+
+### **Karakteristike optičkih žiroskopa:**
+
+* NEMA mehaničkih dijelova
+* Ne troše se
+* Ekstremno precizni
+* Nevjerojatno brzi
+* Otporni na vibracije
+* Skupiiiiii (ali brutalno dobri)
+
+### **Prednosti:**
+
+✔ Mega preciznost
+✔ Dug životni vijek
+✔ Stabilni i pouzdani
+✔ Idealni za navigaciju (avioni, svemirske letjelice, rakete)
+
+### **Nedostaci:**
+
+❌ Cijena (zaboli glava)
+❌ Veća kompleksnost elektronike
+
+---
+
+# 🥊 **Usporedba – kratko i jasno:**
+
+| Karakteristika    | Mehanički                  | Optički                          |
+| ----------------- | -------------------------- | -------------------------------- |
+| Glavni princip    | Rotirajući rotor           | Sagnac efekt (svjetlost)         |
+| Pokretni dijelovi | Da                         | Ne                               |
+| Preciznost        | Dobra                      | Izvrsna                          |
+| Trajnost          | Ograničena                 | Vrlo visoka                      |
+| Vibracije         | Problem                    | Minimalni utjecaj                |
+| Cijena            | Jeftin(iji)                | Skup                             |
+| Upotreba          | Stare platforme, edukacija | Avioni, rakete, autonomna vozila |
+
+---
+
+Ako želiš, mogu ti objasnit i **MEMS žiroskope**, koji su u tvojim telefonima i dronovima (i koji su posebna kategorija – nisu optički ni mehanički u klasičnom smislu).
+Reci samo – idemo dublje! 🚀🔥
+
+
+Kompasi
+Magnetski 
+Žirokompas
+
+Ajmooo, ovo je baš dobra tema – a i brutalno korisna ako ikad radiš išta s dronovima, robotima, IMU-ovima… Krenimo nabrijano i jasno, da ti sjedne ko zacementirano!
+
+---
+
+# 🔥 **Mehanički vs Optički žiroskopi – što, kako i zašto?**
+
+Žiroskop mjeri **kutnu brzinu** – koliko se sustav vrti oko neke osi.
+Ali *kako* to radi, ovisi o vrsti žiroskopa.
+
+Imamo dvije velike familije:
+
+---
+
+# 🟦 **1. Mehanički žiroskopi**
+
+To su **klasični žiroskopi** – bazirani na fizici rotirajuće mase.
+
+### **Kako rade?**
+
+– U njima fizički vrtiš neki rotor (kotačić) na jako visokim brzinama
+– Zbog **momentuma** rotor "želi" zadržati smjer
+– Kada zakreneš okvir, osjeti se precesija → ona se mjeri
+
+### **Karakteristike:**
+
+* Masivni
+* Sporiji
+* Potreban motor (rotor treba vrtit!)
+* Troše više energije
+* Osjetljivi na vibracije i trenje
+* JAKO pouzdani i stabilni (imali su se vremena dokazat)
+
+### **Prednosti:**
+
+✔ Stabilni
+✔ Jasni fizikalni principi
+✔ Dobri za velike platforme (avioni, brodovi)
+
+### **Nedostaci:**
+
+❌ Veliki
+❌ Teški
+❌ Spori
+❌ Mehanički dijelovi se troše
+❌ Nije za moderne male uređaje
+
+---
+
+# 🟩 **2. Optički žiroskopi**
+
+Ovo je potpuno druga liga – ono high-tech stuff.
+
+Umjesto rotora, koriste **svjetlost** i interferenciju.
+
+Postoje 2 tipa:
+
+### 🔸 **FOG (Fiber Optic Gyroscope)**
+
+– Laser se šalje kroz optičko vlakno u dva smjera
+– Ako se sustav vrti → jedna zraka putuje mrvicu brže, druga sporije
+– Razlika faze = kutna brzina
+→ fenomen zvan **Sagnac efekt**
+
+### 🔸 **RLG (Ring Laser Gyroscope)**
+
+– Umjesto vlakna, imaš optički “prsten”
+– Laser kruži unutra u dva smjera
+– Vrtnja mijenja frekvenciju (beat frequency)
+
+### **Karakteristike optičkih žiroskopa:**
+
+* NEMA mehaničkih dijelova
+* Ne troše se
+* Ekstremno precizni
+* Nevjerojatno brzi
+* Otporni na vibracije
+* Skupiiiiii (ali brutalno dobri)
+
+### **Prednosti:**
+
+✔ Mega preciznost
+✔ Dug životni vijek
+✔ Stabilni i pouzdani
+✔ Idealni za navigaciju (avioni, svemirske letjelice, rakete)
+
+### **Nedostaci:**
+
+❌ Cijena (zaboli glava)
+❌ Veća kompleksnost elektronike
+
+---
+
+# 🥊 **Usporedba – kratko i jasno:**
+
+| Karakteristika    | Mehanički                  | Optički                          |
+| ----------------- | -------------------------- | -------------------------------- |
+| Glavni princip    | Rotirajući rotor           | Sagnac efekt (svjetlost)         |
+| Pokretni dijelovi | Da                         | Ne                               |
+| Preciznost        | Dobra                      | Izvrsna                          |
+| Trajnost          | Ograničena                 | Vrlo visoka                      |
+| Vibracije         | Problem                    | Minimalni utjecaj                |
+| Cijena            | Jeftin(iji)                | Skup                             |
+| Upotreba          | Stare platforme, edukacija | Avioni, rakete, autonomna vozila |
+
+---
+
+Ako želiš, mogu ti objasnit i **MEMS žiroskope**, koji su u tvojim telefonima i dronovima (i koji su posebna kategorija – nisu optički ni mehanički u klasičnom smislu).
+Reci samo – idemo dublje! 🚀🔥
+
+Ultrazvučni senzori
+Ko eholokacija od šišmiša
+
+Laserski senzori
+Gledamo odsjaj laserske zrake
+
+Senzori za globalno pozicioniranje => GPS
+Triangulacija područja => raspored satelita u zemljinoj orbiti
+Prijemnici mjere udaljenost od satelita
+21 satelit + 5 zemljanih stanica (ali ima i više)
+
+Sustav vizije: najsloženiji senzori koji se koriste u robotici
